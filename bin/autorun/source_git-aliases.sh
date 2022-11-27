@@ -1,7 +1,7 @@
 #!/bin/bash
 git config --global core.excludesfile ~/.gitignore
-git config --global alias.l 'log --tags --oneline --color --graph'
-git config --global alias.ll 'log --tags --pretty=fuller --color --graph'
+git config --global alias.l 'log --oneline --color --graph'
+git config --global alias.ll 'log --pretty=fuller --color --graph'
 git config --global alias.squash 'merge --squash'
 git config --global alias.b 'branch -v -v'
 git config --global alias.r 'remote -v -v'
