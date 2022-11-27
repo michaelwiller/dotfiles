@@ -64,3 +64,4 @@ alias vim=$EDITOR
 
 # Chezmoi
 alias cm="chezmoi"
+alias cmcd="cd $(chezmoi source-path)"
