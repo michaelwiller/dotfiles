@@ -4,6 +4,10 @@ export VIMWIKI_DEFAULT=pers
 
 source ~/bin/autorun/1_functions.sh
 
+if [ -f ~/.bash-local-env ]; then
+  source ~/.bash-local-env
+fi
+
 pathadd -p /opt/homebrew/bin
 pathadd -p ~/bin
 
