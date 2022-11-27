@@ -14,3 +14,6 @@ pathadd -p ~/bin
 for a in $(ls ~/bin/autorun/source_*); do
   source $a
 done
+
+
+set -o vi 
