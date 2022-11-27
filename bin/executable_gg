@@ -1,0 +1,40 @@
+#!env bash
+
+ok=0
+_L=$(pwd)
+if [ $# -gt 0 ] ; then
+	case "$1" in
+	"-h")	pushd ~ >/dev/null
+		;;
+	"-f")	if [ ! -z $2 ]; then
+			#res="`javautil References favorites $2`"
+			res="$(references.pl favorites $2)"
+			f=$(echo $res | cut -f 2 -d#)
+			if [ ! -z "$f" ]; then
+				if [ -d "$f" ]; then pushd "$f" >/dev/null; else ok=1; echo "sorry ..."; fi
+			else
+				echo "No favorites with key $2"
+			fi
+		else
+			"No favorites specified. Ignored"
+		fi
+		;;
+	"-l")	
+		;;
+	"-?")	echo "gg [-?|-l|-p] [DIR]"
+		echo " -? : display help"
+		echo " -l : list push\'ed directories (dirs)"
+		echo " -f : pushd a favorite (see fav)"
+		echo " -h : pushd ~"
+		echo " -p : pop directory (popd)"
+		echo " no argument - call pushd"
+		echo " DIR: pushd DIR"
+		;;
+	"-p")	popd >/dev/null
+		;;
+	*)	pushd "$1" >/dev/null
+	esac
+else
+	pushd >/dev/null
+fi
+dirs -v

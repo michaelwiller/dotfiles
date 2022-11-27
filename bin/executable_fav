@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+if [ ! -e ~/.config/references ]; then
+	mkdir -p ~/.config/references
+fi
+
+_justecho=false
+filename=favorites
+
+if [ $# -eq 0 -o "$1" == "-h" -o "$1" == "--help" ]; then
+	echo "Usage"
+        echo " fav alias        Move to directory with alias"
+        echo " fav -a alias     Add current directory as alias"
+        echo " fav -d alias     Remove alias"
+        echo " fav -e           Uses EDITOR to edit the favorites file"
+        echo " fav -l           List favorites"
+else
+        res="$(references.pl $filename $*)"
+
+        if [ ! "X$res" == "X" ]; then
+
+	        if $(echo $res | grep "#" > /dev/null); then
+		        refCMD=$(echo "$res" | cut -f 1 -d#)
+		        if [ "$refCMD" = "DONOTHING" ]; then
+			        return
+		        fi
+		        favTarget=$(echo "$res" | cut -f 2 -d#)
+	        else
+		        favTarget="$res"
+		        if [ -f "$res" ]; then
+			        refCMD="EDIT"
+		        else
+			        refCMD="CD"
+		        fi
+	        fi
+
+	        if $_justecho ; then
+		        echo "$favTarget"
+	        else
+		        if [ "$refCMD" = "CD" ]; then
+                                _L=$(pwd)
+			        cd "$favTarget";
+			        for a in $(alias | grep 'alias scr-' | sed 's/alias//' | sed 's/=.*//'); do    unalias $a; done
+                    [ -e ./script/environment ] && . ./script/environment
+	
+		        fi
+
+		        if [ "$refCMD" = "EDIT" ]; then
+			        vi "$favTarget";
+		        fi
+	        fi
+
+        fi
+fi
+unset _justecho
