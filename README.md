@@ -6,9 +6,9 @@ dotfiles in home directory.
 
 ~/bin is added to PATH. 
 
-Default setup looks for a file containing additional paths to be added to PATH:
+Default setup looks for a file containing additional ENV to be added
 
-    ~/.config/my-path-additions
+    ~/.bash-local-env
   
 One line per path.
 
