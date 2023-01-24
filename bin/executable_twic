@@ -3,20 +3,24 @@ twic_number=$(cat $HOME/.config/twic.last)
 
 while true; do
   twic_number=$(expr $twic_number + 1)
-  filename=twic${twic_number}g.zip
-  curl --output  $filename https://theweekinchess.com/zips/${filename}
-  if [[ $? -gt 0 ]]; then
-    echo Error running curl
-    rm $filename
-    exit 1
+  pgnfilename=twic${twic_number}.pgn
+  if [ ! -f $pgnfilename ]; then
+    echo Fetcing: $twic_number
+    zipfilename=twic${twic_number}g.zip
+    curl --output  $zipfilename https://theweekinchess.com/zips/${zipfilename}
+    if [[ $? -gt 0 ]]; then
+      echo Error running curl
+      rm $zipfilename
+      exit 1
+    fi
+    unzip $zipfilename
+    if [[ $? -gt 0 ]]; then
+      echo Error running unzip
+      rm $zipfilename
+      exit 1
+    fi
+    rm $zipfilename
   fi
-  unzip $filename
-  if [[ $? -gt 0 ]]; then
-    echo Error running unzip
-    rm $filename
-    exit 1
-  fi
-  rm $filename
   echo $twic_number > $HOME/.config/twic.last
 done
 
