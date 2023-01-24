@@ -15,6 +15,7 @@
 .cisco
 .config/ansible-secrets
 .config/chezmoi
+.config/chessx
 .config/edb
 .config/expressvpn
 .config/git*
@@ -24,6 +25,7 @@
 .config/karabiner
 .config/nvim/plugin
 .config/references
+.config/twic*
 .config/zim
 .crc
 .cups
@@ -45,6 +47,7 @@
 .lemminx
 .lesshst
 .local
+.log
 .m2
 .minikube
 .minishift
@@ -58,21 +61,28 @@
 .pyfa
 .python_history
 .ssh
+.task
+.taskrc
 .terraform.d
 .timewarrior
 .tooling
 .vagrant.d
+.vim
 .viminfo
 .vimrc
+.vscode
+.wget-hsts
 .zsh_history
 .zshrc
 Applications
+Calibre*
 Creative Cloud Files
 Desktop
 Documents
 Downloads
 Dropbox
 IdeaProjects
+Kindle
 Library
 Movies
 Music
