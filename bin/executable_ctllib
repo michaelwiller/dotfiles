@@ -1,0 +1,193 @@
+#!/usr/bin/env bash
+# vi: set ft=bash :
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  echo "script ${BASH_SOURCE[0]} is not being sourced ..."
+  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  [[ -f ./ctl  ]] && echo "Please use ./ctl" && exit 0
+  echo "Do you want to initialize this directory for ctl (yes/no)"
+  read answ 
+  if [[ "$answ" == "yes" ]]; then
+    echo "[[ -e ./ctllib ]] || echo "ctllib not found" && exit 0"
+    echo "source ./ctllib" >> ./ctl
+    echo "main \$*" >> ./ctl
+    chmod +x ./ctl
+    ln -s $DIR/ctllib .
+  fi
+  exit 0
+fi
+
+# 
+# Additional commands to be added by local ctl scripts
+#
+command_help_details(){
+  echo ""
+}
+
+#
+# List all default commands
+#
+command_help(){
+   cat <<EOF
+$0: Main script for tpaexec environment
+Usage: $0 PARAM
+Where PARAM is one of
+  start            Start the environment
+  stop             Stop the environment
+  reload           Restart the environment
+  ps               Show state of environment
+  pause            Pause the environment
+  resume           Resume the environment
+  provision        Start and force provisioning
+  deploy           Deploy, i.e. perform installations
+  full-deploy      Provision and deploy
+  deprovision      Remove the environment
+  reset            Deprovision and fully-deploy
+  connect          Connect to server(s)
+EOF
+  command_help_details
+}
+
+# #################### #################### ####################
+#
+# A function per command named "command_COMMANDNAME"
+#
+# #################### #################### ####################
+
+command_start(){
+  echo $*
+  vagrant up
+}
+command_stop(){
+  vagrant halt
+}
+command_pause(){
+  vagrant suspend
+}
+command_resume(){
+  vagrant resume
+}
+command_provision(){
+  vagrant up --provision
+}
+command_deploy(){
+  if [ $# -eq 0 ]; then
+    echo "command_deploy() called with no parameters"
+  else
+    echo "command_deploy() called with the following parameters:"
+    i=0
+    for a in "$@"; do
+      i=$(expr $i + 1)
+      echo "   $i: $a"
+    done
+  fi
+  cat <<EOF
+  Define the function "command_deploy" to perform the commands...
+  Perhaps use a call like:
+
+  vagrant ssh -c "/vagrant/scripts/install asuser"
+EOF
+}
+command_full_deploy(){
+  command_provision "$@" \
+  && command_deploy "$@"
+}
+command_deprovision(){
+  vagrant destroy -f "$@"
+}
+command_reset(){
+  command_deprovision "$@" \
+  && command_full_deploy "$@" 
+}
+command_ps(){
+  vagrant status
+  vagrant port
+}
+command_connect(){
+  vagrant ssh "$@"
+}
+
+#
+# UTILITY functions
+#
+
+get_invoke_dir(){
+  cd $(dirname $1) && pwd
+}
+
+# Convert each key:value to 'export KEY=value' to be added to the bash environment.
+#
+# FORMAT:
+# key:value:
+# 
+load_keys(){
+  INFILE=$1; shift
+  [ ! -f $INFILE ] && echo "$INFILE: not found" && exit 0
+  if [ $# -eq 0 ]; then
+    S_IFS="$IFS"
+    for a in $(cat $INFILE); do
+      key=$(echo $a | cut -d : -f 1)
+      value=$(echo $a | cut -d : -f 2)
+      echo "export ${key^^}=${value}"
+    done
+    IFS=$SIFS
+  else
+    echo Parameters
+    for a in "$@"; do
+      echo : $a
+    done
+  fi
+}
+
+#
+# Main function to be called from local ctl-scripts
+#
+
+main(){
+  cmd="${1:-connect}"; [ $# -gt 0 ] && shift;
+  case $cmd in
+    -h|--help|-?)
+      command_help
+      ;;
+    start)
+      command_start "$@"
+      ;;
+    stop)
+      command_stop "$@"
+      ;;
+    reload)
+      command_stop "$@"
+      command_start "$@"
+      ;;
+    pause)
+      command_pause "$@"
+      ;;
+    resume)
+      command_resume "$@"
+      ;;
+    provision)
+      command_provision "$@"
+      ;;
+    deploy)
+      command_deploy "$@"
+      ;;
+    full-deploy)
+      command_full_deploy "$@"
+      ;;
+    deprovision)
+      command_deprovision "$@"
+      ;;
+    reset)
+      command_reset "$@"
+      ;;
+    ps)
+      command_ps "$@"
+      ;;
+    c|connect)
+      command_connect "$@"
+      ;;
+    *)
+      echo "$0: command unknown:$cmd $*"
+      ;;
+  esac
+}
