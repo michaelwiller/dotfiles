@@ -74,6 +74,7 @@
 .wget-hsts
 .zsh_history
 .zshrc
+bin/crc
 Applications
 Calibre*
 Creative Cloud Files
