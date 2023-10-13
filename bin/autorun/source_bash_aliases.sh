@@ -61,6 +61,8 @@ fi
 alias vi=$EDITOR
 alias vim=$EDITOR
 
+alias k=kubectl
+complete -o default -F __start_kubectl k
 
 # Chezmoi
 alias cm="chezmoi"
