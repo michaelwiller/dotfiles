@@ -14,13 +14,13 @@ case $action in
 
 	u|up)
 		# up
-		tpaexec provision >> $logfile || exit -1
+		tpaexec provision . >> $logfile || exit -1
 		echo " " >> $logfile
 		echo " " >> $logfile
 		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------" >> $logfile
 		echo " " >> $logfile
 		echo " " >> $logfile
-		tpaexec deploy >> $logfile || exit -2
+		tpaexec deploy . >> $logfile || exit -2
 		;;
 
 	d|down)
