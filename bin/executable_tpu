@@ -1,0 +1,36 @@
+
+
+logfile=tpu.log
+action=$1
+
+[ $# -eq 0 ] && action="up"
+
+rm -f $logfile 2>2 /dev/null
+
+echo "Logfile: $logfile .  "
+echo "run: tail -f $logfile      in other window"
+
+case $action in
+
+	u|up)
+		# up
+		tpaexec provision >> $logfile || exit -1
+		echo " " >> $logfile
+		echo " " >> $logfile
+		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------" >> $logfile
+		echo " " >> $logfile
+		echo " " >> $logfile
+		tpaexec deploy >> $logfile || exit -2
+		;;
+
+	d|down)
+
+		tpaexec deprovision . >> $logfile 
+		;;
+	
+	*)
+
+		echo 'tpu: run tpaexec capture all output'
+		echo ' '
+		echo 'Usage: tpu u|up|d|down'
+esac
