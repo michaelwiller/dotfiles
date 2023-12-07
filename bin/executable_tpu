@@ -1,36 +1,45 @@
 
 
-logfile=tpu.log
+logfile=/tmp/tpu.$$.log
 action=$1
 
 [ $# -eq 0 ] && action="up"
 
-rm -f $logfile 2>2 /dev/null
-
-echo "Logfile: $logfile .  "
-echo "run: tail -f $logfile      in other window"
-
 case $action in
 
+	c|commit)
+		git add -A
+		git commit -m 'automatic commit all'
+		;;
+
 	u|up)
-		# up
-		tpaexec provision . >> $logfile || exit -1
-		echo " " >> $logfile
-		echo " " >> $logfile
-		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------" >> $logfile
-		echo " " >> $logfile
-		echo " " >> $logfile
-		tpaexec deploy . >> $logfile || exit -2
+                ( rm -f $logfile >>$logfile 2>&1 /dev/null
+		tpaexec provision . || exit -1
+		echo " " 
+		echo " "
+		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------" 
+		echo " " 
+		echo " "
+		tpaexec deploy . || exit -2 ) | tee $logfile
 		;;
 
 	d|down)
+		( echo " ----------------------------------- TPAEXEC DEPROVISION ------------------------------------" >> $logfile
+		tpaexec deprovision . ) | tee $logfile
+		;;
 
-		tpaexec deprovision . >> $logfile 
+	l|list)
+		ls -ltr /tmp/tpu.*.log
+		;;
+
+	r|remove)
+
+		rm -f /tmp/tpu.*.log
 		;;
 	
 	*)
-
 		echo 'tpu: run tpaexec capture all output'
 		echo ' '
-		echo 'Usage: tpu u|up|d|down'
+		echo 'Usage: tpu u|up|d|down|c|commit'
+		;;
 esac
