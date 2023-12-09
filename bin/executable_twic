@@ -1,26 +1,47 @@
 #!/usr/bin/env bash
+
+DATABASE_DIR=~/Documents/chessdata/
+DOWNLOAD_DIR=~/Documents/chessdata/downloads/twic
+
+if ! [ -d $DOWNLOAD_DIR ]; then
+  echo '$DOWNLOAD_DIR not found. Stopping ...'
+  exit -1
+fi
+
+download_twic(){
+  cd $DOWNLOAD_DIR
+  while true; do
+    twic_number=$(expr $twic_number + 1)
+    pgnfilename=twic${twic_number}.pgn
+    if [ ! -f $pgnfilename ]; then
+      echo Fetcing: $twic_number
+      zipfilename=twic${twic_number}g.zip
+      curl --output  $zipfilename https://theweekinchess.com/zips/${zipfilename}
+      if [[ $? -gt 0 ]]; then
+        echo Error running curl
+        rm $zipfilename
+        exit 1
+      fi
+      unzip $zipfilename
+      if [[ $? -gt 0 ]]; then
+        echo Error running unzip
+        rm $zipfilename
+        return
+      fi
+      echo $twic_number > $HOME/.config/twic.last
+    fi
+  done
+}
+
+update_database(){
+  echo "Updating database"
+  cd $DOWNLOAD_DIR
+  for a in $(ls -tr *.pgn); do
+    cat $a >> $DATABASE_DIR/TWIC.pgn
+    rm $a
+  done
+}
+
 twic_number=$(cat $HOME/.config/twic.last)
-
-while true; do
-  twic_number=$(expr $twic_number + 1)
-  pgnfilename=twic${twic_number}.pgn
-  if [ ! -f $pgnfilename ]; then
-    echo Fetcing: $twic_number
-    zipfilename=twic${twic_number}g.zip
-    curl --output  $zipfilename https://theweekinchess.com/zips/${zipfilename}
-    if [[ $? -gt 0 ]]; then
-      echo Error running curl
-      rm $zipfilename
-      exit 1
-    fi
-    unzip $zipfilename
-    if [[ $? -gt 0 ]]; then
-      echo Error running unzip
-      rm $zipfilename
-      exit 1
-    fi
-    rm $zipfilename
-  fi
-  echo $twic_number > $HOME/.config/twic.last
-done
-
+download_twic
+update_database
