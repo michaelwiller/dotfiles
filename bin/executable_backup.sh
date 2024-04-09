@@ -15,3 +15,4 @@ tar -czf "$dest_dir/$tar_filename" -C "$source_dir" .
 cd "$dest_dir" || exit
 ls -t | grep '^backup_' | tail -n +8 | xargs rm -f
 
+echo '$tar_filename created' >> /var/log/backup.sh.log
