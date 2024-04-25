@@ -28,8 +28,20 @@ case $action in
 		tpaexec deprovision . ) | tee $logfile
 		;;
 
+        p|provision)
+		tpaexec provision .
+		;;
+
+	dep|deploy)
+		tpaexec deploy .
+		;;
+
 	l|list)
 		ls -ltr /tmp/tpu.*.log
+		;;
+
+	s|ssh)
+		ssh -F ssh_config $2
 		;;
 
 	r|remove)
@@ -38,8 +50,19 @@ case $action in
 		;;
 	
 	*)
-		echo 'tpu: run tpaexec capture all output'
+		echo '$0: run tpaexec capture all output'
 		echo ' '
-		echo 'Usage: tpu u|up|d|down|c|commit'
+		echo 'Usage: $0 COMMAND'
+		echo '  where COMMAND is one of:'
+		echo ' '
+		echo ' c|commit:    Commit all tpa changes to git'
+		echo ' u|up:        Run `tpaexec provision .` and `tpaexec deploy .`'
+		echo ' d|down:      Run `tpaexec deprovision .`'
+		echo ' l|list:      list log files'
+		echo ' s|ssh ARG:   Run `ssh -F ssh_config ARG`' 
+		echo ' --- '
+		echo ' p|provision: Run `tpaexec provision .`'
+		echo ' dep|deploy:  Run `tpaexec deploy .`'
+
 		;;
 esac
