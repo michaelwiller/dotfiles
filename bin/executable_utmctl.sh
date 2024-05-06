@@ -37,7 +37,11 @@ case $action in
 
 	ssh)
 		p=$(getPort $1)
-		echo Port is $p
+		if [ "$p" == "" ]; then
+			echo "Port not found: $1"
+			exit 0
+		fi
+		ssh -p $p utm@127.0.0.1
 		;;
 
 	sp)
