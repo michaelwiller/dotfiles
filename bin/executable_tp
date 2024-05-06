@@ -2,8 +2,15 @@
 
 logfile=/tmp/tpu.$$.log
 action=$1
+export SLEEP_TIME=5
 
-[ $# -eq 0 ] && action="up"
+if [ $# -eq 0 ]; then
+	if [ ! -f ssh_config ]; then
+		action="up"
+	else
+		action="down"
+	fi
+fi
 
 case $action in
 
@@ -14,17 +21,18 @@ case $action in
 
 	u|up)
                 ( rm -f $logfile >>$logfile 2>&1 /dev/null
+		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------"; sleep $SLEEP_TIME
 		tpaexec provision . || exit -1
 		echo " " 
 		echo " "
-		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------" 
+		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------"; sleep $SLEEP_TIME
 		echo " " 
 		echo " "
 		tpaexec deploy . || exit -2 ) | tee $logfile
 		;;
 
 	d|down)
-		( echo " ----------------------------------- TPAEXEC DEPROVISION ------------------------------------" >> $logfile
+		( echo " ----------------------------------- TPAEXEC DEPROVISION ------------------------------------" ; sleep $SLEEP_TIME
 		tpaexec deprovision . ) | tee $logfile
 		;;
 
@@ -49,6 +57,10 @@ case $action in
 		rm -f /tmp/tpu.*.log
 		;;
 	
+	reset)  echo 'This will delete the deployment and re-create it. Waiting 15 sec before running the commands'; sleep 15
+		tp down; 
+		tp up;
+		;;
 	*)
 		echo '$0: run tpaexec capture all output'
 		echo ' '
