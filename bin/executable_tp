@@ -1,14 +1,22 @@
+#!/bin/bash
 
+isUp(){
+	[ ! -f ssh_config ]
+}
+
+getHosts(){
+	grep -e '^Host' ssh_config | grep -v '*' | cut -d ' ' -f 2
+}
 
 logfile=/tmp/tpu.$$.log
 action=$1
 export SLEEP_TIME=5
 
 if [ $# -eq 0 ]; then
-	if [ ! -f ssh_config ]; then
-		action="up"
-	else
+	if isUp; then
 		action="down"
+	else
+		action="up"
 	fi
 fi
 
@@ -48,8 +56,28 @@ case $action in
 		ls -ltr /tmp/tpu.*.log
 		;;
 
+	ls)
+		if [ ! isUp ]; then
+			echo 'Cluster not up'
+		else
+			getHosts
+		fi
+		;;
+
 	s|ssh)
-		ssh -F ssh_config $2
+		if [ isUp ]; then
+			ssh -F ssh_config $2
+		else
+			echo 'Cluster not up'
+		fi
+		;;
+
+        st|status)
+		if [ isUp ]; then
+			echo UP
+		else
+			echo DOWN
+		fi
 		;;
 
 	r|remove)
