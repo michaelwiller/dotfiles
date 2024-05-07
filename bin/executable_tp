@@ -70,7 +70,12 @@ case $action in
 
 	s|ssh)
 		if isUp; then
-			ssh -F ssh_config $2
+			if [ -z $2 ]; then
+	    			target=$(grep 'Host ' ssh_config | grep -v '*' | sed 's/Host //')
+			else
+				target=$2
+			fi
+			ssh -F ssh_config $target
 		else
 			echo 'Cluster not up'
 		fi
