@@ -1,7 +1,11 @@
 #!/bin/bash
 
 isUp(){
-	[ ! -f ssh_config ]
+	if [ -f ssh_config ]; then
+		return 0
+	else
+		return -1
+	fi
 }
 
 getHosts(){
@@ -57,7 +61,7 @@ case $action in
 		;;
 
 	ls)
-		if [ ! isUp ]; then
+		if ! isUp; then
 			echo 'Cluster not up'
 		else
 			getHosts
@@ -65,7 +69,7 @@ case $action in
 		;;
 
 	s|ssh)
-		if [ isUp ]; then
+		if isUp; then
 			ssh -F ssh_config $2
 		else
 			echo 'Cluster not up'
@@ -73,7 +77,7 @@ case $action in
 		;;
 
         st|status)
-		if [ isUp ]; then
+		if isUp; then
 			echo UP
 		else
 			echo DOWN
