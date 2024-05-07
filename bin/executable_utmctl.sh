@@ -11,6 +11,8 @@ usage(){
 	echo "          Set port to PORT on server of NAME"
 	echo "   ls [TXT]"
 	echo "          Search for TXT or list all content if no TXT"
+	echo "  ssh [NAME]"
+	echo "          ssh to utm@localhost:PORT, using the PORT saved on the NAME"
 }
 
 keyval(){
@@ -23,10 +25,21 @@ touch $CONFIG_FILE
 action=$1; shift
 case $action in
 
+	help)
+		usage
+		;;
+
+	ls)
+		keyval ls "$1"
+		;;
 	rm) 
 		keyval rm $1
 		;;
 
+	sp)
+		keyval set $1 $2
+		;;
+		
 	ssh)
 		p=$(keyval get $1)
 		if [ "$p" == "" ]; then
@@ -34,16 +47,6 @@ case $action in
 			exit 0
 		fi
 		ssh -p $p utm@127.0.0.1
-		;;
-
-	sp)
-		keyval set $1 $2
-		;;
-	ls)
-		keyval ls "$1"
-		;;
-	help)
-		usage
 		;;
 
 	*)
