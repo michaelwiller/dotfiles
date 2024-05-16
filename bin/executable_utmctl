@@ -13,8 +13,18 @@ usage(){
 	echo "          Search for TXT or list all content if no TXT"
 	echo "  ssh [NAME]"
 	echo "          ssh to utm@localhost:PORT, using the PORT saved on the NAME"
+	echo "  refresh-local-env [NAME]"
+	echo "          ssh to utm@localhost:PORT, using the PORT saved on the NAME"
 }
 
+getPort(){
+	p=$(keyval get $1)
+	if [ "$p" == "" ]; then
+		echo "Port not found for: $1" > /dev/tty
+		exit 0
+	fi
+	echo $p
+}
 keyval(){
 	keyval.sh $CONFIG_FILE $*
 }
@@ -41,12 +51,37 @@ case $action in
 		;;
 		
 	ssh)
-		p=$(keyval get $1)
-		if [ "$p" == "" ]; then
-			echo "Port not found for: $1"
-			exit 0
-		fi
+		p=$(getPort $1)
 		ssh -p $p utm@127.0.0.1
+		;;
+
+	refresh-local-env)
+
+		p=$(getPort $1)
+		f=/tmp/.bash-local-env
+		rm $f 2>/dev/null
+		touch $f
+		echo "export CHEZMOI_GITHUB_USER=$CHEZMOI_GITHUB_USER" >> $f
+		echo "export EDB_SUBSCRIPTION_TOKEN=$EDB_SUBSCRIPTION_TOKEN" >> $f
+		echo "export REPO=k8s_enterprise_pgd" >> $f
+		echo "export TOKEN=$EDB_SUBSCRIPTION_TOKEN" >> $f
+		echo "export TMUX_ENABLED=false" >> $f
+		chmod 600 $f
+		scp -P $p $f utm@127.0.0.1:$(basename $f)
+		;;
+
+
+	start) 
+		osascript <<EOF
+		tell application "UTM"
+		  set vm to virtual machine named "$1"
+		  start vm
+    		end tell
+EOF
+		;;
+	stop)
+		p=$(getPort $1)
+		ssh -p $p utm@127.0.0.1 sudo shutdown now -f
 		;;
 
 	*)
