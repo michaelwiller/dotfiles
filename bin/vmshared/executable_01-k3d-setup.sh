@@ -13,7 +13,7 @@ apt_update(){
 
 install_docker(){
 	out 'Prepare for DOCKER repository'
-	sh ./02-docker-repo.sh
+	sh ./_prep-docker-repo.sh
 
 	out 'Install docker, git, jq'
 	sudo apt-get install -y docker.io git jq
