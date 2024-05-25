@@ -52,6 +52,11 @@ case $action in
 		keyval set $1 $2
 		;;
 		
+	cp)
+		p=$(getPort $1)
+		scp -P $p "$2" utm@127.0.0.1:.
+		;;
+
 	ssh)
 		p=$(getPort $1)
 		ssh -p $p utm@127.0.0.1
