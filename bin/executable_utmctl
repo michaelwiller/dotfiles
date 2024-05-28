@@ -79,6 +79,7 @@ case $action in
 
 
 	start) 
+		echo "Do not use"; exit 0;
 		p=$(getPort $1)
 		[ -z $p ] && exit 0
 		osascript <<EOF
