@@ -1,5 +1,22 @@
 #!/bin/bash
 
+usage(){
+	echo '$0: run tpaexec capture all output'
+	echo ' '
+	echo 'Usage: $0 COMMAND'
+	echo '  where COMMAND is one of:'
+	echo ' '
+	echo ' c|commit:    Commit all tpa changes to git'
+	echo ' u|up:        Run `tpaexec provision .` and `tpaexec deploy .`'
+	echo ' d|down:      Run `tpaexec deprovision .`'
+	echo ' l|list:      list log files'
+	echo ' s|ssh ARG:   Run `ssh -F ssh_config ARG`' 
+	echo '  xp [ARG]:   Find servers in config.yaml that match [ARG] and create tmux xpanes for all. Create for all server if no ARG.'
+	echo ' --- '
+	echo ' p|provision: Run `tpaexec provision .`'
+	echo ' dep|deploy:  Run `tpaexec deploy .`'
+}
+
 isUp(){
 	if [ -f ssh_config ]; then
 		return 0
@@ -13,8 +30,12 @@ getHosts(){
 }
 
 logfile=/tmp/tpu.$$.log
-action=$1
 export SLEEP_TIME=5
+
+if [ ! -f config.yml ]; then
+    echo "No config.yml - are you in the right directory?"
+    exit 0
+fi
 
 if [ $# -eq 0 ]; then
 	if isUp; then
@@ -22,6 +43,8 @@ if [ $# -eq 0 ]; then
 	else
 		action="up"
 	fi
+else
+	action=$1; shift
 fi
 
 case $action in
@@ -98,20 +121,24 @@ case $action in
 		tp down; 
 		tp up;
 		;;
-	*)
-		echo '$0: run tpaexec capture all output'
-		echo ' '
-		echo 'Usage: $0 COMMAND'
-		echo '  where COMMAND is one of:'
-		echo ' '
-		echo ' c|commit:    Commit all tpa changes to git'
-		echo ' u|up:        Run `tpaexec provision .` and `tpaexec deploy .`'
-		echo ' d|down:      Run `tpaexec deprovision .`'
-		echo ' l|list:      list log files'
-		echo ' s|ssh ARG:   Run `ssh -F ssh_config ARG`' 
-		echo ' --- '
-		echo ' p|provision: Run `tpaexec provision .`'
-		echo ' dep|deploy:  Run `tpaexec deploy .`'
+	xp)
+		if isUp; then
+			:
+		else
+			echo "Is the deployment up?"
+			exit 0
+		fi
 
+		if [ $# -gt 0 ]; then
+			targets=$(grep 'Host ' ssh_config | grep -v '*' | sed 's/Host //' | grep "$1")
+		else
+			targets=$(grep 'Host ' ssh_config | grep -v '*' | sed 's/Host //')
+		fi
+		echo Targets: $targets
+		xpanes -c 'ssh -F ssh_config {}' $targets
+		;;
+
+	*)
+		usage; exit 0;
 		;;
 esac
