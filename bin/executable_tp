@@ -10,6 +10,7 @@ usage(){
 	echo ' u|up:        Run `tpaexec provision .` and `tpaexec deploy .`'
 	echo ' d|down:      Run `tpaexec deprovision .`'
 	echo ' l|list:      list log files'
+	echo ' setup:       Run setup command (after changing version)'
 	echo ' s|ssh ARG:   Run `ssh -F ssh_config ARG`' 
 	echo '  xp [ARG]:   Find servers in config.yaml that match [ARG] and create tmux xpanes for all. Create for all server if no ARG.'
 	echo ' --- '
@@ -56,7 +57,7 @@ case $action in
 
 	u|up)
                 ( rm -f $logfile >>$logfile 2>&1 /dev/null
-		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------"; sleep $SLEEP_TIME
+		echo " ----------------------------------- TPAEXEC PROVISION----------------------------------"; sleep $SLEEP_TIME
 		tpaexec provision . || exit -1
 		echo " " 
 		echo " "
@@ -82,6 +83,9 @@ case $action in
 	l|list)
 		ls -ltr /tmp/tpu.*.log
 		;;
+	setup)
+		tpaexec setup && tpaexec selftest && tpaexec info
+		;;
 
 	ls)
 		if ! isUp; then
@@ -93,12 +97,19 @@ case $action in
 
 	s|ssh)
 		if isUp; then
-			if [ -z $2 ]; then
-	    			target=$(grep 'Host ' ssh_config | grep -v '*' | sed 's/Host //')
+			if [ -z $1 ]; then
+	    		target=$(grep 'Host ' ssh_config | grep -v '*' | sed 's/Host //')
+				no_of_targets=$(echo $target | wc -w )
+				no_of_targets=$(($no_of_targets + 0))
+				if [ $no_of_targets -eq 1 ]; then
+					ssh -F ssh_config $target
+				else
+					echo "Possible targets: $target ( $no_of_targets )"
+				fi
 			else
-				target=$2
+				target=$1
+			    ssh -F ssh_config $target
 			fi
-			ssh -F ssh_config $target
 		else
 			echo 'Cluster not up'
 		fi

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONFIG_FILE=$HOME/.local/.utmctl.config
+CONFIG_FILE=$HOME/.config/utmctl.config
 COMMAND=$0
 
 usage(){
@@ -71,7 +71,6 @@ case $action in
 		echo "export CHEZMOI_GITHUB_USER=$CHEZMOI_GITHUB_USER" >> $f
 		echo "export EDB_SUBSCRIPTION_TOKEN=$EDB_SUBSCRIPTION_TOKEN" >> $f
 		echo "export REPO=k8s_enterprise_pgd" >> $f
-		echo "export TOKEN=$EDB_SUBSCRIPTION_TOKEN" >> $f
 		echo "export TMUX_ENABLED=false" >> $f
 		chmod 600 $f
 		scp -P $p $f utm@127.0.0.1:$(basename $f)
