@@ -11,9 +11,26 @@ apt_update(){
 	sudo apt-get update 
 }
 
+install_docker_repo(){
+
+	# Add Docker's official GPG key:
+	sudo apt-get update
+	sudo apt-get install ca-certificates curl
+	sudo install -m 0755 -d /etc/apt/keyrings
+	sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+	sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+	# Add the repository to Apt sources:
+	echo \
+		"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+		$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+		sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	sudo apt-get update
+}
+
 install_docker(){
 	out 'Prepare for DOCKER repository'
-	sh ./_prep-docker-repo.sh
+	install_docker_repo
 
 	out 'Install docker, git, jq'
 	sudo apt-get install -y docker.io git jq
@@ -58,7 +75,7 @@ install_chezmoi(){
 	out 'Install chezmoi'
 	check_chezmoi
 	sudo snap install chezmoi --classic
-	chezmoi init git@github.com:$CHEZMOI_GITHUB_USER/dotfiles.git
+	chezmoi init https://github.com/$CHEZMOI_GITHUB_USER/dotfiles.git
 	echo 'TMUX_ENABLED=false' >> ~/.bash-local-env
 }
 
@@ -66,6 +83,7 @@ install_chezmoi(){
 run_all(){
 	apt_update \
 	&& install_docker \
+	&& install_docker_repo \
 	&& install_helm \
 	&& install_k3d \
 	&& install_kubectl \
