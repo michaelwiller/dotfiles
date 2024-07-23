@@ -12,6 +12,7 @@ fi
 
 pathadd -p /opt/homebrew/bin
 pathadd -p ~/bin
+pathadd -p ~/.local/bin
 
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
 for a in $(ls ~/bin/autorun/source_*); do
