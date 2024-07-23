@@ -13,6 +13,8 @@ usage(){
 	echo ' setup:       Run setup command (after changing version)'
 	echo ' s|ssh ARG:   Run `ssh -F ssh_config ARG`' 
 	echo '  xp [ARG]:   Find servers in config.yaml that match [ARG] and create tmux xpanes for all. Create for all server if no ARG.'
+	echo '  cp:         Copy files to the relevant servers'
+	echo ' demo:        Run xpanes to start 4-pane window.'
 	echo ' --- '
 	echo ' p|provision: Run `tpaexec provision .`'
 	echo ' dep|deploy:  Run `tpaexec deploy .`'
@@ -131,6 +133,13 @@ case $action in
 	reset)  echo 'This will delete the deployment and re-create it. Waiting 15 sec before running the commands'; sleep 15
 		tp down; 
 		tp up;
+		;;
+	cp)
+		cd files
+		./copy-files-to-servers.sh
+		;;
+	demo)
+		xpanes -dc 'clear' barman-{a,b,a,b}
 		;;
 	xp)
 		if isUp; then

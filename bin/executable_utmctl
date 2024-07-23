@@ -37,29 +37,30 @@ touch $CONFIG_FILE
 action=$1; shift
 case $action in
 
+	_names)
+		keyval ls $1 | cut -f 1 -d :
+		;;
+
+	edit)
+		$EDITOR $CONFIG_FILE
+		;;
+
+	copy-file)
+		p=$(getPort $1)
+		scp -r -P $p "$2" utm@127.0.0.1:.
+		;;
+
+	connect)
+		p=$(getPort $1)
+		ssh -p $p utm@127.0.0.1
+		;;
+
 	help)
 		usage
 		;;
 
-	ls)
+	list)
 		keyval ls "$1"
-		;;
-	rm) 
-		keyval rm $1
-		;;
-
-	sp)
-		keyval set $1 $2
-		;;
-		
-	cp)
-		p=$(getPort $1)
-		scp -P $p "$2" utm@127.0.0.1:.
-		;;
-
-	ssh)
-		p=$(getPort $1)
-		ssh -p $p utm@127.0.0.1
 		;;
 
 	refresh-local-env)
@@ -76,18 +77,14 @@ case $action in
 		scp -P $p $f utm@127.0.0.1:$(basename $f)
 		;;
 
-
-	start) 
-		echo "Do not use"; exit 0;
-		p=$(getPort $1)
-		[ -z $p ] && exit 0
-		osascript <<EOF
-		tell application "UTM"
-		  set vm to virtual machine named "$1"
-		  start vm
-    		end tell
-EOF
+	remove) 
+		keyval rm $1
 		;;
+
+	set-port)
+		keyval set $1 $2
+		;;
+		
 	stop)
 		p=$(getPort $1) 
 		[ -z $p ] && exit 0
