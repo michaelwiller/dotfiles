@@ -47,7 +47,11 @@ case $action in
 
 	copy-file)
 		p=$(getPort $1)
-		scp -r -P $p "$2" utm@127.0.0.1:.
+		if [ "$2" == "-f" ]; then
+			scp -r -P $p "$3" utm@127.0.0.1:.
+		else
+			echo "$0 copy-files [node] -f [files]"
+		fi
 		;;
 
 	connect)
@@ -57,6 +61,16 @@ case $action in
 
 	help)
 		usage
+		;;
+	init)
+		p=$(getPort $1)
+		f=/tmp/$$
+		scp -P $p ~/.ssh/id_rsa.pub utm@127.0.0.1:.ssh/authorized_keys
+		echo "mkdir .ssh" >> $f
+		echo "sh -c \"\$(curl -fsLS get.chezmoi.io)\" -- init --apply $CHEZMOI_GITHUB_USER" >> $f
+		scp -P $p $f utm@127.0.0.1:cmd.sh
+		ssh -p $p utm@127.0.0.1 "sh cmd.sh"
+		cat $f
 		;;
 
 	list)
