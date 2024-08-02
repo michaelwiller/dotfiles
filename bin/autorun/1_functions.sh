@@ -1,10 +1,20 @@
 #!env bash
 
-parse_git_branch() {
+pyact(){
+	venv=${1:-"venv"}
+	echo $venv
+	if [ ! -d $venv ]; then
+		echo "Could not activate venv: $venv. Are you in the right directory?"
+	else
+		source $venv/bin/activate
+	fi
+}
+
+__parse_git_branch() {
      git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ git:\1/'
 }
 
-pathadd() {
+__pathadd() {
   local do_prefix=false
   if [ "$1" == "-p" ]; then
     do_prefix=true;
@@ -18,26 +28,4 @@ pathadd() {
       export PATH=$PATH:$1
     fi
 	fi
-}
-debugOut() {
-	if $debug ; then
-		errout "$*"
-	fi;
-}
-
-die(){
-	echo "$*"
-	exit 0
-}
-
-out(){
-	echo "$*" 1>&2
-}
-
-stdout(){
-	echo "$*"
-}
-
-errout(){
-	echo "$*" 1>&2
 }

@@ -10,9 +10,9 @@ if [ -f ~/.bash-local-env ]; then
   source ~/.bash-local-env
 fi
 
-pathadd -p /opt/homebrew/bin
-pathadd -p ~/bin
-pathadd -p ~/.local/bin
+__pathadd -p /opt/homebrew/bin
+__pathadd -p ~/bin
+__pathadd -p ~/.local/bin
 
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
 for a in $(ls ~/bin/autorun/source_*); do
@@ -36,7 +36,7 @@ case $sessionStage in
         ;;
 esac
 
-export PS1="\e[0m\e[${ps1Color}m\u@\h \w\[\e[0m\] \$(parse_git_branch) \n\$ "
+export PS1="\e[0m\e[${ps1Color}m\u@\h \w\[\e[0m\] \$(__parse_git_branch) \n\$ "
 
 # # Add taskwarrior count to prompt
 # if which task >>/dev/null; then
