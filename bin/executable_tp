@@ -1,23 +1,25 @@
 #!/bin/bash
 
+errout(){
+	echo "$1" >&2
+}
 usage(){
 	echo '$0: run tpaexec capture all output'
 	echo ' '
 	echo 'Usage: $0 COMMAND'
 	echo '  where COMMAND is one of:'
 	echo ' '
-	echo ' c|commit:    Commit all tpa changes to git'
-	echo ' u|up:        Run `tpaexec provision .` and `tpaexec deploy .`'
-	echo ' d|down:      Run `tpaexec deprovision .`'
-	echo ' l|list:      list log files'
-	echo ' setup:       Run setup command (after changing version)'
-	echo ' s|ssh ARG:   Run `ssh -F ssh_config ARG`' 
-	echo '  xp [ARG]:   Find servers in config.yaml that match [ARG] and create tmux xpanes for all. Create for all server if no ARG.'
-	echo '  cp:         Copy files to the relevant servers'
+	echo ' commit:    Commit all tpa changes to git'
+	echo ' copy:         Copy files to the relevant servers'
+	echo ' deploy     Run tpaexec deploy'
+	echo ' down:      Run `tpaexec deprovision .`'
+	echo ' list:      list log files'
+	echo ' provision  Run tpaexec provision'
+	echo ' setup:     Run setup command (after changing version)'
+	echo ' ssh ARG:   Run `ssh -F ssh_config ARG`' 
+	echo ' -  [ARG]:  Find servers in config.yaml that match [ARG] and create tmux xpanes for all. Create for all server if no ARG.'
+	echo ' up:        Run `tpaexec provision .` and `tpaexec deploy .`'
 	echo ' demo:        Run xpanes to start 4-pane window.'
-	echo ' --- '
-	echo ' p|provision: Run `tpaexec provision .`'
-	echo ' dep|deploy:  Run `tpaexec deploy .`'
 }
 
 isUp(){
@@ -41,7 +43,7 @@ logfile=/tmp/tpu.$$.log
 export SLEEP_TIME=5
 
 if [ ! -f config.yml ]; then
-    echo "No config.yml - are you in the right directory?"
+    errout "No config.yml - are you in the right directory?"
     exit 0
 fi
 
@@ -57,9 +59,27 @@ fi
 
 case $action in
 
-	c|commit)
+	commit)
 		git add -A
 		git commit -m 'automatic commit all'
+		;;
+
+	copy)
+		cd files
+		./copy-files-to-servers.sh
+		;;
+
+	deploy)
+		tpaexec deploy .
+		;;
+
+	demo)
+		xpanes -dc 'clear' barman-{a,b,a,b}
+		;;
+
+	d|down)
+		( echo " ----------------------------------- TPAEXEC DEPROVISION ------------------------------------" ; sleep $SLEEP_TIME
+		tpaexec deprovision . ) | tee $logfile
 		;;
 
 	u|up)
@@ -74,50 +94,59 @@ case $action in
 		tpaexec deploy . || exit -2 ) | tee $logfile
 		;;
 
-	d|down)
-		( echo " ----------------------------------- TPAEXEC DEPROVISION ------------------------------------" ; sleep $SLEEP_TIME
-		tpaexec deprovision . ) | tee $logfile
-		;;
-
-        p|provision)
-		tpaexec provision .
-		;;
-
-	dep|deploy)
-		tpaexec deploy .
-		;;
-
-	l|list)
+	list)
 		ls -ltr /tmp/tpu.*.log
-		;;
-	setup)
-		tpaexec setup && tpaexec selftest && tpaexec info
 		;;
 
 	ls)
 		if ! isUp; then
-			echo 'Cluster not up'
+			errout 'Cluster not up'
 		else
 			getHosts $1
 		fi
 		;;
 
+        provision)
+		tpaexec provision .
+		;;
+
+	remove)
+
+		rm -f /tmp/tpu.*.log
+		;;
+	
+	reset)  errout 'This will delete the deployment and re-create it. Waiting 15 sec before running the commands'; sleep 15
+		tp down; 
+		tp up;
+		;;
+
+	setup)
+		tpaexec setup && tpaexec selftest && tpaexec info
+		;;
+
 	s|ssh)
 		if isUp; then
 			target=$(getHosts $1)
+			flavour=$(cat config.yml | grep postgres_flavour | cut -d : -f 2)
+			usr=postgres
+			case $flavour in
+				*epas*)
+					usr=enterprisedb
+					;;
+			esac
 			no_of_targets=$(echo $target | wc -w )
 			no_of_targets=$(($no_of_targets + 0))
 			if [ $no_of_targets -eq 1 ]; then
-				ssh -F ssh_config $target
+				ssh -F ssh_config $target -t "sudo su - $usr"
 			else
 				echo "$no_of_targets possible targets: $target "
 			fi
 		else
-			echo 'Cluster not up'
+			errout 'Cluster not up' 
 		fi
 		;;
 
-        st|status)
+        status)
 		if isUp; then
 			echo UP
 		else
@@ -125,32 +154,16 @@ case $action in
 		fi
 		;;
 
-	r|remove)
-
-		rm -f /tmp/tpu.*.log
-		;;
-	
-	reset)  echo 'This will delete the deployment and re-create it. Waiting 15 sec before running the commands'; sleep 15
-		tp down; 
-		tp up;
-		;;
-	cp)
-		cd files
-		./copy-files-to-servers.sh
-		;;
-	demo)
-		xpanes -dc 'clear' barman-{a,b,a,b}
-		;;
 	xp)
 		if isUp; then
 			:
 		else
-			echo "Is the deployment up?"
+			errout "Is the deployment up?"
 			exit 0
 		fi
 
 		targets=$(getHosts $1)
-		echo Targets: $targets
+		errout Targets: $targets
 		xpanes -c 'ssh -F ssh_config {}' $targets
 		;;
 
