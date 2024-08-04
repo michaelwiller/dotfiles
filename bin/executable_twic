@@ -1,47 +1,69 @@
 #!/usr/bin/env bash
 
-DATABASE_DIR=~/Documents/chessdata/
-DOWNLOAD_DIR=~/Documents/chessdata/downloads/twic
+TEMP_PREFIX=twic-temp
+TARGET_FILE=~/Downloads/TWIC.pgn
 
-if ! [ -d $DOWNLOAD_DIR ]; then
-  echo '$DOWNLOAD_DIR not found. Stopping ...'
-  exit -1
-fi
-
-download_twic(){
-  cd $DOWNLOAD_DIR
-  while true; do
-    twic_number=$(expr $twic_number + 1)
-    pgnfilename=twic${twic_number}.pgn
-    if [ ! -f $pgnfilename ]; then
-      echo Fetcing: $twic_number
-      zipfilename=twic${twic_number}g.zip
-      curl --output  $zipfilename https://theweekinchess.com/zips/${zipfilename}
-      if [[ $? -gt 0 ]]; then
-        echo Error running curl
-        rm $zipfilename
-        exit 1
-      fi
-      unzip $zipfilename
-      if [[ $? -gt 0 ]]; then
-        echo Error running unzip
-        rm $zipfilename
-        return
-      fi
-      echo $twic_number > $HOME/.config/twic.last
-    fi
-  done
+die(){
+	echo $1
+	exit 0
 }
 
-update_database(){
-  echo "Updating database"
-  cd $DOWNLOAD_DIR
-  for a in $(ls -tr *.pgn); do
-    cat $a >> $DATABASE_DIR/TWIC.pgn
-    rm $a
-  done
+fetch_file_or_stop(){
+	local twic_number=$1
+	local output_file=$2
+	local zipfilename="twic${twic_number}g.zip"
+	echo "Fetching $zipfilename"
+	curl -s -o $output_file https://theweekinchess.com/zips/${zipfilename}
+	if [[ $? -gt 0 ]]; then
+		echo Error running curl. Stopping.
+		rm $output_file
+		exit 0
+	fi
 }
 
-twic_number=$(cat $HOME/.config/twic.last)
-download_twic
-update_database
+unzip_or_stop(){
+	unzip $1
+	if [[ $? -gt 0 ]]; then
+		echo 'Not a zip-file. The previous file *must* be the last one available.'
+		rm $1
+		exit 0
+	fi
+}
+
+update_target(){
+	local twic_number=$1
+	local target=$2
+	local source="twic${twic_number}.pgn"
+	if [ ! -f $target ]; then
+		touch $target
+	fi
+	cat $source >> $target
+	rm $source
+}
+
+twic_last(){
+	local config_file=$HOME/.config/twic.last
+	case $1 in
+		get)
+			cat $config_file
+			;;
+		set)
+	    echo $2 > $config_file
+			;;
+	esac
+}
+
+run(){
+	local twic_number=$1
+	cd $HOME/Downloads
+	while true; do
+		twic_number=$(expr $twic_number + 1)
+		fetch_file_or_stop $twic_number ${TEMP_PREFIX}.zip || die "fetch went wrong"
+		unzip_or_stop ${TEMP_PREFIX}.zip || die "unzip went wrong"
+		update_target $twic_number $TARGET_FILE || die "update went wrong"
+		twic_last set $twic_number
+	done
+}
+
+[ -f $TARGET_FILE ] && rm $TARGET_FILE
+run $(twic_last get)
