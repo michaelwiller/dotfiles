@@ -137,7 +137,8 @@ case $action in
 			no_of_targets=$(echo $target | wc -w )
 			no_of_targets=$(($no_of_targets + 0))
 			if [ $no_of_targets -eq 1 ]; then
-				ssh -F ssh_config $target -t "sudo su - $usr"
+				ssh -F ssh_config $target "echo sudo su - $usr >> pg.sh; chmod +x pg.sh"
+				ssh -F ssh_config $target 
 			else
 				echo "$no_of_targets possible targets: $target "
 			fi
