@@ -17,9 +17,12 @@ __pgenv::list_env(){
 	IFS='
 '
 	local l srv srvs=""
-	for l in $(cat $PGENV_CONF | grep -v '^#'); do
-		srv=$(echo $l | cut -d '#' -f 1)
-		srvs="$srvs $srv"
+	local pattern="($1)#([^#]*)#([^#]*)#([^#]*)#([^#]*)"
+	for l in $(cat $PGENV_CONF); do
+		if [[ "$l" =~ $pattern ]]; then
+			srv=$(echo $l | cut -d '#' -f 1)
+			srvs="$srvs $srv"
+		fi
 	done
 	echo "versions: ${srvs:1}"
 	IFS=$_old_ifs
