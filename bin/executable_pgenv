@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PGENV_CONF=~/.pgenv
+
 
 __pgenv::pg_create_env(){
 
@@ -16,12 +16,12 @@ __pgenv::list_env(){
 	local _old_ifs=$IFS
 	IFS='
 '
-	local l srv srvs
-	for l in $(cat $PGENV_CONF); do
+	local l srv srvs=""
+	for l in $(cat $PGENV_CONF | grep -v '^#'); do
 		srv=$(echo $l | cut -d '#' -f 1)
 		srvs="$srvs $srv"
 	done
-	echo $srvs
+	echo "versions: ${srvs:1}"
 	IFS=$_old_ifs
 }
 
@@ -45,22 +45,26 @@ __pgenv::read_env(){
 }
 
 
+main(){
+	case $1 in
+		create)
+			__pgenv::create_env
+			;;
+		read) 
+			__pgenv::read_env $2
+			echo srv: $__pg_service
+			echo bin: $__pg_bin
+			echo data: $__pg_data
+			echo ld: $__pg_ldflags
+			echo cpp: $__pg_cppflags
+			;;
+		list) 
+			__pgenv::list_env
+			;;
+		*)
+			echo ??
+	esac
+}
 
-case $1 in
-	create)
-		__pgenv::create_env
-		;;
-	read) 
-		__pgenv::read_env $2
-		echo srv: $__pg_service
-		echo bin: $__pg_bin
-		echo data: $__pg_data
-		echo ld: $__pg_ldflags
-		echo cpp: $__pg_cppflags
-		;;
-	list) 
-		__pgenv::list_env
-		;;
-	*)
-		echo ??
-esac
+readonly PGENV_CONF=~/.pgenv
+main "$@"
