@@ -20,6 +20,8 @@ __pgenv::list_env(){
 	local pattern="($1)#([^#]*)#([^#]*)#([^#]*)#([^#]*)"
 	for l in $(cat $PGENV_CONF); do
 		if [[ "$l" =~ $pattern ]]; then
+		echo $l
+		echo rematch: $BASH_REMATCH[1]
 			srv=$(echo $l | cut -d '#' -f 1)
 			srvs="$srvs $srv"
 		fi
@@ -28,10 +30,12 @@ __pgenv::list_env(){
 	IFS=$_old_ifs
 }
 
+
 __pgenv::read_env(){
-	local a=$(cat $PGENV_CONF | grep -e "^$1#")
+	local name=$1
+	local line=$2
 	local pattern="($1)#([^#]*)#([^#]*)#([^#]*)#([^#]*)"
-	if [[ "$a" =~  $pattern ]]
+	if [[ "$line" =~  $pattern ]]
 	then
 		__pg_service=${BASH_REMATCH[1]}
 		__pg_bin=${BASH_REMATCH[2]}
@@ -47,6 +51,19 @@ __pgenv::read_env(){
 	fi
 }
 
+__pgenv::get_env(){
+	local _old_ifs=$IFS
+	export IFS='
+'
+	for line in $(cat $PGENV_CONF); do
+		__pgenv::read_env "$1" "$line"
+		if [[ "$__pg_service" == "$1" ]]; then
+			return
+		fi
+	done
+	export IFS=$_old_ifs
+}
+
 
 main(){
 	case $1 in
@@ -54,7 +71,7 @@ main(){
 			__pgenv::create_env
 			;;
 		read) 
-			__pgenv::read_env $2
+			__pgenv::get_env $2
 			echo srv: $__pg_service
 			echo bin: $__pg_bin
 			echo data: $__pg_data
