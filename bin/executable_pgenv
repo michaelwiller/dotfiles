@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+PGENV_CONF=~/.pgenv
+
+__pgenv::pg_create_env(){
+
+	cat <<EOF > $PGENV_CONF
+# pgenv: format
+# name#__pg_service#__pg_bin#__pg_data#__pg_ldflags#pg_cppflags
+16#postgresql@16#/opt/homebrew/opt/postgresql@16/bin#/opt/homebrew/var/postgresql@16#/opt/homebrew/opt/postgresql@16/lib#/opt/homebrew/opt/postgresql@16/include
+17#postgresql@17#/opt/homebrew/opt/postgresql@17/bin#/opt/homebrew/var/postgresql@17#/opt/homebrew/opt/postgresql@17/lib#/opt/homebrew/opt/postgresql@17/include
+EOF
+}
+
+__pgenv::list_env(){
+	local _old_ifs=$IFS
+	IFS='
+'
+	local l srv srvs
+	for l in $(cat $PGENV_CONF); do
+		srv=$(echo $l | cut -d '#' -f 1)
+		srvs="$srvs $srv"
+	done
+	echo $srvs
+	IFS=$_old_ifs
+}
+
+__pgenv::read_env(){
+	local a=$(cat $PGENV_CONF | grep -e "^$1#")
+	local pattern="($1)#([^#]*)#([^#]*)#([^#]*)#([^#]*)"
+	if [[ "$a" =~  $pattern ]]
+	then
+		__pg_service=${BASH_REMATCH[1]}
+		__pg_bin=${BASH_REMATCH[2]}
+		__pg_data=${BASH_REMATCH[3]}
+		__pg_ldflags=${BASH_REMATCH[4]}
+		__pg_cppflags=${BASH_REMATCH[5]}
+
+	#	__pg_service=$(echo $a | cut -d '#' -f 1)
+	#	__pg_bin=$(echo $a | cut -d '#' -f 2)
+	#	__pg_data=$(echo $a | cut -d '#' -f 3)
+	#	__pg_ldflags=$(echo $a | cut -d '#' -f 4)
+	#	__pg_cppflags=$(echo $a | cut -d '#' -f 5)
+	fi
+}
+
+
+
+case $1 in
+	create)
+		__pgenv::create_env
+		;;
+	read) 
+		__pgenv::read_env $2
+		echo srv: $__pg_service
+		echo bin: $__pg_bin
+		echo data: $__pg_data
+		echo ld: $__pg_ldflags
+		echo cpp: $__pg_cppflags
+		;;
+	list) 
+		__pgenv::list_env
+		;;
+	*)
+		echo ??
+esac
