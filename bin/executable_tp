@@ -39,6 +39,28 @@ getHosts(){
 	echo $t
 }
 
+ensure_ssh_ip(){
+	# Output the first occurence of 'cidr_ip'. This is the SSH gateway.
+	grep 'cidr_ip' config.yml | head -1
+	# EDB does not accept a fully open connection. So, we have to change it
+	# I'm running this every time, since my IP might change
+	#
+	# Get my current IP
+	myip=$(curl -s ifconfig.me)
+	echo "Myip = $myip"
+	# Perform an in-place update with sed.
+	# Change the first occurence of cidr_ip (1,/- cidr_ip).
+	# Change it to the IP found before.
+	sed -i '' "1,/- cidr_ip:/s/- cidr_ip.*/- cidr_ip: $myip\/32/" config.yml
+	# Show the results
+	grep 'cidr_ip' config.yml | head -1
+}
+
+tp_provision(){
+	ensure_ssh_ip
+	tpaexec provision . || exit -1
+}
+
 logfile=/tmp/tpu.$$.log
 export SLEEP_TIME=5
 
@@ -85,7 +107,7 @@ case $action in
 	u|up)
                 ( rm -f $logfile >>$logfile 2>&1 /dev/null
 		echo " ----------------------------------- TPAEXEC PROVISION----------------------------------"; sleep $SLEEP_TIME
-		tpaexec provision . || exit -1
+		tp_provision
 		echo " " 
 		echo " "
 		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------"; sleep $SLEEP_TIME
@@ -107,7 +129,7 @@ case $action in
 		;;
 
         provision)
-		tpaexec provision .
+		tp_provision
 		;;
 
 	remove)
@@ -137,7 +159,7 @@ case $action in
 			no_of_targets=$(echo $target | wc -w )
 			no_of_targets=$(($no_of_targets + 0))
 			if [ $no_of_targets -eq 1 ]; then
-				ssh -F ssh_config $target "echo sudo su - $usr >> pg.sh; chmod +x pg.sh"
+				ssh -F ssh_config $target "echo sudo su - $usr > pg.sh; chmod +x pg.sh"
 				ssh -F ssh_config $target 
 			else
 				echo "$no_of_targets possible targets: $target "
