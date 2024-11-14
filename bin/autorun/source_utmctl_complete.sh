@@ -15,12 +15,12 @@ _utmctl() {
 	#
 	case "${prev}" in
 
-		edit|help|list)
+		edit|help|ls|list)
 			opts=""
 			;;
 
 		copy-file|\
-		connect|\
+		ssh|connect|\
 		init|\
 		refresh-local-env|\
 		remove|\

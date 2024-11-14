@@ -10,16 +10,22 @@ usage(){
 	echo '  where COMMAND is one of:'
 	echo ' '
 	echo ' commit:    Commit all tpa changes to git'
-	echo ' copy:         Copy files to the relevant servers'
+	echo ' copy:      Copy files to the relevant servers'
 	echo ' deploy     Run tpaexec deploy'
 	echo ' down:      Run `tpaexec deprovision .`'
-	echo ' list:      list log files'
+	echo ' list:      List log files'
 	echo ' provision  Run tpaexec provision'
+	echo ' rmlogs     Remove the tpu-logs (/tmp)'
+	echo ' reset      deprovision the cluster and deploy again'
 	echo ' setup:     Run setup command (after changing version)'
 	echo ' ssh ARG:   Run `ssh -F ssh_config ARG`' 
 	echo ' -  [ARG]:  Find servers in config.yaml that match [ARG] and create tmux xpanes for all. Create for all server if no ARG.'
+	echo ' status:    Show status for current directory'
 	echo ' up:        Run `tpaexec provision .` and `tpaexec deploy .`'
-	echo ' demo:        Run xpanes to start 4-pane window.'
+	echo ' XPANES commands: '
+	echo ' xp [ARGS]: Run xpanes with ssh to the servers specified with ARGS'
+	echo ' xp-default:      Run xpanes to start 4-pane window.'
+	
 }
 
 isUp(){
@@ -64,9 +70,15 @@ tp_provision(){
 logfile=/tmp/tpu.$$.log
 export SLEEP_TIME=5
 
+case $1 in
+	--help)
+		usage;
+		exit 0;
+esac
+
 if [ ! -f config.yml ]; then
-    errout "No config.yml - are you in the right directory?"
-    exit 0
+	errout "No config.yml - are you in the right directory?"
+	exit 0
 fi
 
 if [ $# -eq 0 ]; then
@@ -80,6 +92,14 @@ else
 fi
 
 case $action in
+
+	__ls)
+		if ! isUp; then
+			errout 'Cluster not up'
+		else
+			getHosts $1
+		fi
+		;;
 
 	commit)
 		git add -A
@@ -95,44 +115,20 @@ case $action in
 		tpaexec deploy .
 		;;
 
-	demo)
-		xpanes -dc 'clear' barman-{a,b,a,b}
-		;;
-
 	d|down)
 		( echo " ----------------------------------- TPAEXEC DEPROVISION ------------------------------------" ; sleep $SLEEP_TIME
 		tpaexec deprovision . ) | tee $logfile
-		;;
-
-	u|up)
-                ( rm -f $logfile >>$logfile 2>&1 /dev/null
-		echo " ----------------------------------- TPAEXEC PROVISION----------------------------------"; sleep $SLEEP_TIME
-		tp_provision
-		echo " " 
-		echo " "
-		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------"; sleep $SLEEP_TIME
-		echo " " 
-		echo " "
-		tpaexec deploy . || exit -2 ) | tee $logfile
 		;;
 
 	list)
 		ls -ltr /tmp/tpu.*.log
 		;;
 
-	ls)
-		if ! isUp; then
-			errout 'Cluster not up'
-		else
-			getHosts $1
-		fi
-		;;
-
-        provision)
+	provision)
 		tp_provision
 		;;
 
-	remove)
+	rmlogs)
 
 		rm -f /tmp/tpu.*.log
 		;;
@@ -169,12 +165,24 @@ case $action in
 		fi
 		;;
 
-        status)
+	status)
 		if isUp; then
 			echo UP
 		else
 			echo DOWN
 		fi
+		;;
+
+	u|up)
+				( rm -f $logfile >>$logfile 2>&1 /dev/null
+		echo " ----------------------------------- TPAEXEC PROVISION----------------------------------"; sleep $SLEEP_TIME
+		tp_provision
+		echo " " 
+		echo " "
+		echo " ----------------------------------- TPAEXEC DEPLOY ------------------------------------"; sleep $SLEEP_TIME
+		echo " " 
+		echo " "
+		tpaexec deploy . || exit -2 ) | tee $logfile
 		;;
 
 	xp)
@@ -188,6 +196,10 @@ case $action in
 		targets=$(getHosts $1)
 		errout Targets: $targets
 		xpanes -c 'ssh -F ssh_config {}' $targets
+		;;
+
+	xp-default)
+		$0 xp barman-{a,b,a,b}
 		;;
 
 	*)
