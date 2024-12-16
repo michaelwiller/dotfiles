@@ -14,6 +14,13 @@ __parse_git_branch() {
      git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ git:\1/'
 }
 
+__showpath() {
+	echo PATH CONTENT:
+	for a in $(echo "${PATH}" | tr ':' '\n'); do
+		echo - $a
+	done
+}
+
 __pathadd() {
   local do_prefix=false
   if [ "$1" == "-p" ]; then
@@ -21,11 +28,13 @@ __pathadd() {
     shift
   fi
 
-	if ! echo $PATH | grep "$1" > /dev/null; then
-    if $do_prefix; then
-      export PATH=$1:$PATH
-    else
-      export PATH=$PATH:$1
-    fi
-	fi
+  if echo $PATH | grep "$1" > /dev/null; then
+		PATH=$(echo "${PATH}" | tr ':' '\n' | grep -v -x -F "$1" | tr '\n' ':')
+  fi
+
+  if $do_prefix; then
+    export PATH=$1:$PATH
+  else
+    export PATH=$PATH:$1
+  fi
 }
