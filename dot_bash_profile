@@ -16,9 +16,14 @@ __pathadd -p /usr/bin
 __pathadd -p /usr/sbin
 __pathadd -p /usr/local/bin
 
+__pathadd -p /opt/homebrew/bin
+__pathadd -p /opt/homebrew/sbin
 __pathadd -p ~/bin
 __pathadd -p ~/.local/bin
-__pathadd -p /opt/homebrew/bin
+
+alias docker=podman
+export KIND_EXPERIMENTAL_PROVIDER=podman
+
 
 #__showpath
 
