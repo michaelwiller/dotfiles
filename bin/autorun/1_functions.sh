@@ -16,9 +16,13 @@ __parse_git_branch() {
 
 __showpath() {
 	echo PATH CONTENT:
+	OIFS=$IFS
+	IFS="
+"
 	for a in $(echo "${PATH}" | tr ':' '\n'); do
-		echo - $a
+	  echo - $a
 	done
+	IFS=$OIFS; unset OIFS
 }
 
 __pathadd() {
