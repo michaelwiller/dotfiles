@@ -10,9 +10,9 @@ if [ -f ~/.bash-local-env ]; then
   source ~/.bash-local-env
 fi
 
-__pathadd -p /opt/homebrew/bin
 __pathadd -p ~/bin
 __pathadd -p ~/.local/bin
+__pathadd -p /opt/homebrew/bin
 
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
 for a in $(ls ~/bin/autorun/source_*); do
