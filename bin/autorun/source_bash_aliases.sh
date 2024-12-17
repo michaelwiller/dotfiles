@@ -66,6 +66,8 @@ complete -o default -F __start_kubectl k
 
 # Chezmoi
 alias cm="chezmoi"
-alias cmcd="cd $(chezmoi source-path)"
+complete -o default -o nospace -F __start_chezmoi chezmoi
 
-alias u=utmctl
+# Kubectl
+alias k=kubectl
+complete -o default -o nospace -F __start_kubectl k
