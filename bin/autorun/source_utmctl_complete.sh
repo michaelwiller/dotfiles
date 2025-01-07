@@ -23,8 +23,8 @@ _utmctl() {
 		ssh|connect|\
 		init|\
 		refresh-local-env|\
-		remove|\
-		set-port|\
+		rm|remove|\
+		sp|set-port|\
 		stop)
 			opts=$(utmctl _names ${curr})
 			;;

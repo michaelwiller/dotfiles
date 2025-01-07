@@ -1,5 +1,8 @@
 #!/bin/bash
-
+#
+# utmctl is a (very) small utility I've written to make it easy for me to connect to the UTM-based VMs I tend to run.
+# It is written as a carry-over until Vagrant on Mac
+#
 CONFIG_FILE=$HOME/.config/utmctl.config
 COMMAND=$0
 
@@ -54,7 +57,12 @@ case $action in
 		fi
 		;;
 
-	connect)
+	ssh-reset)
+		mv ~/.ssh/known_hosts ~/.ssh/known_hosts_old 
+		cat ~/.ssh/known_hosts_old | grep -v '127.0.0.1' | grep -v 'localhost' > ~/.ssh/known_hosts
+		;;
+
+	connect|ssh)
 		p=$(getPort $1)
 		ssh -p $p utm@127.0.0.1
 		;;
@@ -91,11 +99,11 @@ case $action in
 		scp -P $p $f utm@127.0.0.1:$(basename $f)
 		;;
 
-	remove) 
+	remove|rm) 
 		keyval rm $1
 		;;
 
-	set-port)
+	set-port|sp)
 		keyval set $1 $2
 		;;
 		
