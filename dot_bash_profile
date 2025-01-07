@@ -21,10 +21,6 @@ __pathadd -p /opt/homebrew/sbin
 __pathadd -p ~/bin
 __pathadd -p ~/.local/bin
 
-alias docker=podman
-export KIND_EXPERIMENTAL_PROVIDER=podman
-
-
 #__showpath
 
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion

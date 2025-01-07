@@ -54,6 +54,11 @@ alias ggf=". ~/bin/gg -f"
 alias aws-profile=". ~/bin/aws-profile"
 alias tool-version=". ~/bin/tool-version"
 
+if which podman > /dev/null 2>&1;
+  alias docker=podman
+  export KIND_EXPERIMENTAL_PROVIDER=podman
+fi
+
 # VIM 
 if which nvim >> /dev/null; then
   export EDITOR=nvim
