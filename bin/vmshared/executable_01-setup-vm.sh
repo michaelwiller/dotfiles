@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 out(){
 	echo '---------------------------------------------------'
 	echo $1
@@ -12,7 +14,6 @@ apt_update(){
 }
 
 install_docker_repo(){
-
 	# Add Docker's official GPG key:
 	sudo apt-get update
 	sudo apt-get install ca-certificates curl
@@ -50,6 +51,7 @@ install_k3d(){
 }
 
 install_kind(){
+	out "Install KIND - Kubernetes IN Docker"
 	# For AMD64 / x86_64
 	[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.26.0/kind-linux-amd64
 	# For ARM64

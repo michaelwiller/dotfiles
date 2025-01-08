@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-export TMUX_ENABLED=true
-export EDITOR=nvim
-
-
 source ~/bin/autorun/1_functions.sh
 
 for a in $(ls ~/.bash-local-env*); do

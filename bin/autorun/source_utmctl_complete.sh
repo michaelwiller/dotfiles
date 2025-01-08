@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 _utmctl() {
 	local cur prev opts fav_options
 	COMPREPLY=()
