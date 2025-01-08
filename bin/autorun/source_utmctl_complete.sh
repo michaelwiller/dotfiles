@@ -7,7 +7,7 @@ _utmctl() {
 	#
 	#  The basic options we'll complete.
 	#
-	fav_options="edit copy-file connect help list refresh-local-env remove set-port stop"
+	fav_options="edit copy-file connect help list ssh-reset refresh-local-env remove set-port stop"
 	opts=$fav_options
 
 	#

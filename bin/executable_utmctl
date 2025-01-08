@@ -18,6 +18,8 @@ usage(){
 	echo "          Start or stop the VM with specified name"
 	echo "  ssh [NAME]"
 	echo "          ssh to utm@localhost:PORT, using the PORT saved on the NAME"
+	echo "  ssh-reset"
+	echo "          Remove all 127.0.0.1 and localhost entries from .known_hosts"
 	echo "  refresh-local-env [NAME]"
 	echo "          ssh to utm@localhost:PORT, using the PORT saved on the NAME"
 }
@@ -79,6 +81,7 @@ case $action in
 		scp -P $p $f utm@127.0.0.1:cmd.sh
 		ssh -p $p utm@127.0.0.1 "sh cmd.sh"
 		cat $f
+		$0 refresh-local-env $1
 		;;
 
 	ls|list)
@@ -88,7 +91,7 @@ case $action in
 	refresh-local-env)
 
 		p=$(getPort $1)
-		f=/tmp/.bash-local-env
+		f=/tmp/.bash-local-env-utmctl
 		rm $f 2>/dev/null
 		touch $f
 		echo "export CHEZMOI_GITHUB_USER=$CHEZMOI_GITHUB_USER" >> $f
