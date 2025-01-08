@@ -8,7 +8,7 @@ dotfiles in home directory.
 
 Default setup looks for a file containing additional ENV to be added
 
-    ~/.bash-local-env
+    ~/.bash-local-env*
   
 
 ## Chezmoi quick reference
