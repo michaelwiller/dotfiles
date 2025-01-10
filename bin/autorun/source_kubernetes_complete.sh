@@ -2,6 +2,6 @@
 
 if which kubectl >/dev/null 2>&1; then
 
-	source <(kubectl complete bash)
+	source <(kubectl completion bash)
 
 fi
