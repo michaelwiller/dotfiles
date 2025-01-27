@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+
+backup(){
+	echo "Backup $1 from $2"
+	tar czf icloudlinks/obsidian-backups/$1.tgz $2 
+}
+
+cd ~
+backup EDB EDB-Vault/.
+backup Cabinet Documents/Cabinet/.
+ls -l icloudlinks/obsidian-backups/*
