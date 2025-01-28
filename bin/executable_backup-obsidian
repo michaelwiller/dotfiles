@@ -2,11 +2,17 @@
 
 
 backup(){
-	echo "Backup $1 from $2"
-	tar czf icloudlinks/obsidian-backups/$1.tgz $2 
+	targetdir=~/icloudlinks/obsidian-backups/$1
+	sourcedir=~/icloudlinks/$1
+	echo "$1:"
+	[ ! -e $sourcedir ] && echo "  $sourcedir does not exist" && return;
+	[ ! -e $targetdir ] && echo "  $targetdir does not exist" && return;
+	backup.sh $sourcedir $targetdir
+	latest_backup=$(ls -Ht $targetdir | head -n 1)
+	oldest_backup=$(ls -Htr $targetdir | head -n 1)
+	echo "  Backup range: $oldest_backup - $latest_backup"	
 }
 
 cd ~
-backup EDB EDB-Vault/.
-backup Cabinet Documents/Cabinet/.
-ls -l icloudlinks/obsidian-backups/*
+backup EDB 
+backup Cabinet
