@@ -2,4 +2,4 @@
 
 backup-obsidian
 
-sudo shutdown now
+sudo shutdown -h +2
