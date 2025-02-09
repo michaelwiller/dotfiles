@@ -10,16 +10,18 @@ if [ -f ~/.bash-local-env ]; then
   source ~/.bash-local-env
 fi
 
-__pathadd -p /bin
-__pathadd -p /sbin
-__pathadd -p /usr/bin
-__pathadd -p /usr/sbin
-__pathadd -p /usr/local/bin
+#__showpath
 
-__pathadd -p /opt/homebrew/bin
-__pathadd -p /opt/homebrew/sbin
-__pathadd -p ~/bin
-__pathadd -p ~/.local/bin
+__pathadd /opt/homebrew/bin
+__pathadd /opt/homebrew/sbin
+__pathadd /usr/local/bin
+__pathadd /usr/bin
+__pathadd /bin
+__pathadd /usr/sbin
+__pathadd /sbin
+
+__pathadd ~/bin
+__pathadd ~/.local/bin
 
 #__showpath
 

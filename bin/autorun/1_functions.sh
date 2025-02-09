@@ -22,7 +22,7 @@ __showpath() {
 	for a in $(echo "${PATH}" | tr ':' '\n'); do
 	  echo - $a
 	done
-	IFS=$OIFS; unset OIFS
+	IFS="$OIFS"; unset OIFS
 }
 
 __pathadd() {
@@ -32,8 +32,9 @@ __pathadd() {
     shift
   fi
 
-  if echo $PATH | grep "$1" > /dev/null; then
-		PATH=$(echo "${PATH}" | tr ':' '\n' | grep -v -x -F "$1" | tr '\n' ':')
+  if echo $PATH | grep "$1" >/dev/null 2>&1; then
+		P2=$(echo "${PATH}" | tr ':' '\n' | grep -v -x -F "$1" | tr '\n' ':')
+		PATH="$P2"; unset P2
   fi
 
   if $do_prefix; then
