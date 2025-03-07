@@ -1,5 +1,5 @@
 
 
-backup-obsidian
+obsidian backup
 
 sudo shutdown -h now
