@@ -1,6 +1,36 @@
 #!/usr/bin/env bash
 
 
+usage(){
+	echo "$0 mvref|backup"
+	echo "   mvref:"
+	echo "   $0 mvref OLDREF NEWREF"
+	echo "      note: must be in vault-directory - does not recurse"
+	echo " "
+	echo "   backup:"
+	echo "   $0 backup"
+	echo "      will look for folders in \~/icloudlinks/obsidian-vaults"
+	echo "      all folder will have a tar-ball created in \~/icloudlinks/obsidian-backups (subfolder of same name as vault)"
+	echo "      7 tar-balls are retained per vault"
+}
+
+
+update_links() {
+    local old_link="$1"
+    local new_link="$2"
+    local dir="${3:-.}"  # Default to current directory
+
+    if [[ -z "$old_link" || -z "$new_link" ]]; then
+        echo "Usage: update_links 'SOME OLD LINK' 'SOME OTHER LINK' [directory]"
+        return 1
+    fi
+
+    find "$dir" -type f -name "*.md" -exec sed -i '' "s|\[\[$old_link\]\]|\[\[$new_link\]\]|g" {} +
+
+    echo "Updated all occurrences of [[${old_link}]] to [[${new_link}]] in .md files under $dir"
+}
+
+
 # Not used
 handle_dual(){
 	IFS='
@@ -32,23 +62,22 @@ backup_vault(){
 	echo "  Backups: $count_backup ($oldest_backup - $latest_backup)"	
 }
 
-backup(){
+backup_all(){
 	cd ~
-	backup EDB $1
-	backup Cabinet $1
+	backup_vault EDB $1
+	backup_vault Cabinet $1
 }
-
 
 case $1 in
 	backup)
-		backup
+		backup_all
 		;;
 
 	mvref)
-		move_reference "$1" "$2"
+		update_links "$1" "$2" "."
 		;;
-	*)
-		printf "\n $*\n\nI have not idea what this means..."
+	*|help)
+		usage
 		exit
 		;;
 esac
