@@ -25,7 +25,15 @@ update_links() {
         return 1
     fi
 
-    find "$dir" -type f -name "*.md" -exec sed -i '' "s|\[\[$old_link\]\]|\[\[$new_link\]\]|g" {} +
+    find "$dir" -type f -name "*.md" -print0 | while IFS= read -r -d '' file; do
+    	echo Old link is: $old_link
+	echo New link is: $new_link
+        if grep -q "\[\[$old_link\]\]" "$file"; then
+	    echo Updating: $file
+            sed -i '' "s|\[\[$old_link\]\]|\[\[$new_link\]\]|g" "$file"
+            echo "Updated: $file"
+        fi
+    done
 
     echo "Updated all occurrences of [[${old_link}]] to [[${new_link}]] in .md files under $dir"
 }
@@ -33,8 +41,7 @@ update_links() {
 
 # Not used
 handle_dual(){
-	IFS='
-'
+	IFS=
 
 	for dualfile in $(ls *\ 2.md)
 	do
@@ -74,6 +81,7 @@ case $1 in
 		;;
 
 	mvref)
+		shift
 		update_links "$1" "$2" "."
 		;;
 	*|help)
