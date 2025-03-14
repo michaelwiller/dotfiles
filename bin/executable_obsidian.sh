@@ -16,26 +16,24 @@ usage(){
 
 
 update_links() {
-    local old_link="$1"
-    local new_link="$2"
-    local dir="${3:-.}"  # Default to current directory
+  local old_link="$1"
+  local new_link="$2"
+  local dir="${3:-.}"  # Default to current directory
 
-    if [[ -z "$old_link" || -z "$new_link" ]]; then
-        echo "Usage: update_links 'SOME OLD LINK' 'SOME OTHER LINK' [directory]"
-        return 1
-    fi
+	if [[ -z "$old_link" || -z "$new_link" ]]; then
+		echo "Usage: update_links 'SOME OLD LINK' 'SOME OTHER LINK' [directory]"
+		return 1
+  fi
 
-    find "$dir" -type f -name "*.md" -print0 | while IFS= read -r -d '' file; do
-    	echo Old link is: $old_link
-	echo New link is: $new_link
-        if grep -q "\[\[$old_link\]\]" "$file"; then
+  find "$dir" -type f -name "*.md" -print0 | while IFS= read -r -d '' file; do
+    if grep -q "\[\[$old_link\]\]" "$file"; then
 	    echo Updating: $file
-            sed -i '' "s|\[\[$old_link\]\]|\[\[$new_link\]\]|g" "$file"
-            echo "Updated: $file"
-        fi
-    done
+      sed -i '' "s|\[\[$old_link\]\]|\[\[$new_link\]\]|g" "$file"
+      echo "Updated: $file"
+    fi
+  done
 
-    echo "Updated all occurrences of [[${old_link}]] to [[${new_link}]] in .md files under $dir"
+  echo "Updated all occurrences of [[${old_link}]] to [[${new_link}]] in .md files under $dir"
 }
 
 
