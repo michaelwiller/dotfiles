@@ -2,13 +2,9 @@
 
 source ~/bin/autorun/1_functions.sh
 
-for a in $(ls ~/.bash-local-env*); do
+for a in $(ls ~/.config/bash-local-env/*); do
   source $a
 done
-
-if [ -f ~/.bash-local-env ]; then
-  source ~/.bash-local-env
-fi
 
 #__showpath
 
