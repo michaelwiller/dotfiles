@@ -12,6 +12,15 @@
 .bundle
 .cache
 .clickshare
+.gradle
+.hawtjni
+.profile
+.python-envs
+.zshrc
+VirtualBox VMs
+clusters
+go
+tokens
 .config/*
 .docker
 .eclipse
