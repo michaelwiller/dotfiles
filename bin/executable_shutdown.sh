@@ -2,6 +2,6 @@
 
 destroy-all-clusters.sh
 
-obsidian backup
+obsidian.sh backup
 
 sudo shutdown -h now
