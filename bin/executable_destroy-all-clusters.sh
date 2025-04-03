@@ -36,19 +36,21 @@ destroy-all-vagrant(){
 	done
 }
 
-action=$1
+actions="$*"
+[ -z $1 ] && actions="tpa vagrant"
 
-case $action in
-	tpa)
-		destroy-all-tpa
-		;;
+echo $actions | for action in $(cat --); do
 
-	vagrant)
-		destroy-all-vagrant
-		;;
-	*)
-		destroy-all-tpa
-		destroy-all-vagrant
-		;;
-esac
+	case $action in
 
+		tpa)
+			destroy-all-tpa
+			;;
+
+		vagrant)
+			destroy-all-vagrant
+			;;
+
+	esac
+
+done
