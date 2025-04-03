@@ -6,6 +6,8 @@ info(){
 }
 
 destroy-all-tpa(){
+	info "TPA clusters"
+	cd ~/clusters/tpa
 
 	for a in $(find . -type d -depth 1);
 	do
@@ -23,6 +25,9 @@ destroy-all-tpa(){
 
 destroy-all-vagrant(){
 
+	info "VAGRANT clusters"
+	cd ~/clusters/vagrant
+
 	for a in $(find . -type d -depth 1); do
 		echo '----------------------------------'
 		echo "$a:"
@@ -31,10 +36,19 @@ destroy-all-vagrant(){
 	done
 }
 
-cd ~/clusters
+action=$1
 
-info "TPA clusters"
-(cd tpa; destroy-all-tpa)
+case $action in
+	tpa)
+		destroy-all-tpa
+		;;
 
-info "Vagrant clusters"
-(cd vagrant; destroy-all-vagrant)
+	vagrant)
+		destroy-all-vagrant
+		;;
+	*)
+		destroy-all-tpa
+		destroy-all-vagrant
+		;;
+esac
+
