@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# vim: set ts=2 sw=2 noexpandtab :
 
 out(){
 	echo '---------------------------------------------------'
@@ -37,7 +38,7 @@ install_docker(){
 	sudo apt-get install -y docker.io git jq
 
 	out 'Add utm to docker group'
-	sudo usermod -aG docker utm
+	sudo usermod -aG docker $USER
 }
 
 install_helm(){
@@ -125,36 +126,39 @@ EOF
 }
 
 if [ -z $1 ]; then
-	run_all
-	exit $?
+	actions="apt docker helm kind k3d kubectl"
+else
+				actions="$*"
 fi
 
-case $1 in
-	apt)
-		apt_update
-		;;
-	docker) 
-		install_docker
-		;;
-	helm)
-		install_helm
-		;;
-	kind)
-		install_kind
-		;;
-	k3d)
-		install_k3d
-		;;
-	kubectl)
-		install_kubectl
-		;;
-	chezmoi)
-		install_chezmoi
-		;;
-	vim)
-		install_neovim 
-		;;
-	*)
-		usage
-esac
+for a in $(echo $actions); do
+	case $1 in
+		apt)
+			apt_update
+			;;
+		docker) 
+			install_docker
+			;;
+		helm)
+			install_helm
+			;;
+		kind)
+			install_kind
+			;;
+		k3d)
+			install_k3d
+			;;
+		kubectl)
+			install_kubectl
+			;;
+		chezmoi)
+			install_chezmoi
+			;;
+		vim)
+			install_neovim 
+			;;
+		*)
+			usage
+	esac
+done
 
