@@ -23,10 +23,10 @@ install_docker_repo(){
 	sudo chmod a+r /etc/apt/keyrings/docker.asc
 
 	# Add the repository to Apt sources:
-	echo \
-		"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-		$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-		sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	arch=$(dpkg --print-architecture) 
+	version_codename=$(. /etc/os-release && echo "$VERSION_CODENAME") 
+	signed_by=/etc/apt/keyrings/docker.asc
+	echo "deb [arch=$arch signed-by=$signed_by] https://download.docker.com/linux/ubuntu $version_codename stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 	sudo apt-get update
 }
 
@@ -93,17 +93,17 @@ install_chezmoi(){
 
 run_all(){
 	apt_update \
-	&& install_docker \
-	&& install_docker_repo \
-	&& install_helm \
-	&& install_kind \
-	&& install_kubectl \
-	&& install_neovim \
-	&& install_chezmoi
-}
+		&& install_docker \
+		&& install_docker_repo \
+		&& install_helm \
+		&& install_kind \
+		&& install_kubectl \
+		&& install_neovim \
+		&& install_chezmoi
+	}
 
-usage(){
-	cat <<EOF
+	usage(){
+		cat <<EOF
 	$0: [TARGET] (if blank run all targets)
 	Target is one of:
 	apt)
@@ -128,7 +128,7 @@ EOF
 if [ -z $1 ]; then
 	actions="apt docker helm kind k3d kubectl"
 else
-				actions="$*"
+	actions="$*"
 fi
 
 for a in $(echo $actions); do
