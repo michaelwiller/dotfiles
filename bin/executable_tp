@@ -53,6 +53,7 @@ ensure_ssh_ip(){
 	#
 	# Get my current IP
 	myip=$(curl -s ifconfig.me)
+	# myip=54.164.46.13
 	echo "Myip = $myip"
 	# Perform an in-place update with sed.
 	# Change the first occurence of cidr_ip (1,/- cidr_ip).
@@ -63,7 +64,7 @@ ensure_ssh_ip(){
 }
 
 tp_provision(){
-	ensure_ssh_ip
+	#ensure_ssh_ip
 	tpaexec provision . || exit -1
 }
 
@@ -112,7 +113,7 @@ case $action in
 		;;
 
 	deploy)
-		tpaexec deploy .
+		tpaexec deploy . -vv --ssh-extra-args '-F ssh_config' 
 		;;
 
 	d|down)

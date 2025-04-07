@@ -32,7 +32,7 @@ destroy-all-vagrant(){
 		echo '----------------------------------'
 		echo "$a:"
 		echo '----------------------------------'
-		(cd $a; vagrant destroy -f)
+		(cd $a; vagrant halt -f)
 	done
 }
 
