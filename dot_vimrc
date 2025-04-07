@@ -1,0 +1,10 @@
+" Vim script to configure tab settings
+
+" Set tab stop to 2 spaces
+set tabstop=2
+
+" Ensure tabs are not converted to spaces
+set noexpandtab
+
+" Set shift width to match the tab stop value (2 spaces)
+set shiftwidth=2
