@@ -9,8 +9,11 @@ destroy-all-tpa(){
 	info "TPA clusters"
 	cd ~/clusters/tpa
 
-	for a in $(find . -type d -depth 1);
+	for a in $(ls);
 	do
+		if [ ! -e $a/config.yml ]; then
+			continue
+		fi
 		echo '----------------------------------'
 		echo "$a:"
 		echo '----------------------------------'
@@ -32,7 +35,16 @@ destroy-all-vagrant(){
 		echo '----------------------------------'
 		echo "$a:"
 		echo '----------------------------------'
-		(cd $a; vagrant halt -f)
+		cd $a;
+		vagrant status | grep "is running" > /dev/null 2>&1
+		is_running=$?
+		cd ..;
+		if [ $is_running -eq 0 ]; then
+			cd $a; vagrant halt -f; cd ..
+		else
+			echo 'Cluster not running'
+			continue
+		fi
 	done
 }
 
