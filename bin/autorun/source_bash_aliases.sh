@@ -69,3 +69,8 @@ alias vim=$EDITOR
 # Chezmoi
 alias cm="chezmoi"
 complete -o default -o nospace -F __start_chezmoi chezmoi
+complete -o default -o nospace -F __start_chezmoi cm
+
+# Vagrant.sh
+alias v=vagrant.sh
+complete -o default -o nospace -F _vagrantsh_complete v
