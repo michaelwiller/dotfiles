@@ -20,16 +20,16 @@ help(){
 
 aws.sh image|table ARGS
 
-image:
+image: Get all attributes for a specific image (Use this to find f.ex. owner-id) 
   
 	aws.sh image IMAGE_ID [REGION]
 
 		ex. IMAGE_ID = ami-02fd62706c23e828f
 		REGION (defaults to eu-west-1)
 
-search:
+search: Look for images owned by a specific owner-id
 
-	aws.sh search OWNER_ID REGION SEARCH_STRING 
+	aws.sh search OWNER_ID [REGION [SEARCH_STRING]]
 
 	ex.: search 979382823631 eu-west-1 "cassandra"
 
