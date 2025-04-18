@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+CONFIG_FILE=${SSH_CONFIG:-ssh_config}
+
+# Check for ssh_config file
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "No ssh_config found at $CONFIG_FILE - are you in the right directory?"
+    exit 0
+fi
+
+# Check for xpanes
+if ! command -v xpanes &> /dev/null; then
+    echo "xpanes is not installed. Please install it first."
+    exit 1
+fi
+
+# Parse arguments
+DRY_RUN=false
+while [[ "$1" =~ ^- ]]; do
+    case "$1" in
+        -r|--dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+# Filter targets
+if [ $# -gt 0 ]; then
+    targets=$(awk '/^Host / && !/\*/ {print $2}' "$CONFIG_FILE" | grep "$1")
+else
+    targets=$(awk '/^Host / && !/\*/ {print $2}' "$CONFIG_FILE")
+fi
+
+# Handle no matching targets
+if [ -z "$targets" ]; then
+    echo "No matching targets found in $CONFIG_FILE."
+    exit 1
+fi
+
+# Display targets
+echo "Targets: $targets"
+
+# Dry run mode
+if [ "$DRY_RUN" = true ]; then
+    echo "Dry run mode enabled. Commands to be executed:"
+    for target in $targets; do
+        echo "ssh -F $CONFIG_FILE $target"
+    done
+    exit 0
+fi
+
+# Open SSH sessions with xpanes
+xpanes -c "ssh -F $CONFIG_FILE {}" $targets
