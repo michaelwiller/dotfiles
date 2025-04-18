@@ -2,12 +2,24 @@
 
 source ~/bin/autorun/1_functions.sh
 
-for a in $(ls ~/.config/bash-local-env/*); do
-  source $a
-done
+source_dir(){
+  local env_count
+  local source_dir="$1"
+  local search_pattern="${2}*"
+  
+  if [ -d $source_dir ]; then
+    env_count=$(find $source_dir -type f -name "$search_pattern" | wc -l)
+  else
+    env_count=0
+  fi
+  [ $env_count -gt 0 ] && for a in $(find $source_dir -type f -name "$search_pattern" -maxdepth 1); do
+    source $a
+  done
+}
+
+
 
 #__showpath
-
 __pathadd /opt/homebrew/bin
 __pathadd /opt/homebrew/sbin
 __pathadd /usr/local/bin
@@ -21,10 +33,11 @@ __pathadd ~/.local/bin
 
 #__showpath
 
+
+source_dir $HOME/.config/bash-local-env
+source_dir $HOME/bin/autorun "source_"
+
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
-for a in $(ls ~/bin/autorun/source_*); do
-  source $a
-done
 
 set -o vi 
 
@@ -75,4 +88,6 @@ if $TMUX_ENABLED; then
             fi
         fi
     fi
+else
+    echo "TMUX disabled"
 fi
