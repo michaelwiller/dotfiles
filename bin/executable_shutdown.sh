@@ -119,4 +119,5 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+
 perform_shutdown | tee $HOME/shutdown.log
