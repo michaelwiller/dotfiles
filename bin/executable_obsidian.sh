@@ -14,6 +14,7 @@ usage(){
     echo "  backup               Backup all configured Obsidian vaults."
     echo "  mvref <old> <new>    Update all references of 'old' to 'new' in markdown files."
     echo "                       Optionally, specify a directory to limit the scope."
+    echo "  attach-unref         Lists unreferenced attachments"
     echo "  help                 Show this help message."
     echo ""
     echo "Examples:"
@@ -57,6 +58,18 @@ update_links() {
   echo "Updated all occurrences of [[${old_link}]] to [[${new_link}]] in .md files under $dir"
 }
 
+find_unreferenced_attachments(){
+
+    IFS='
+'
+    cd attachments
+    for a in $(ls *); do
+        if ! grep '$a' ../*.md >/dev/null 2>&1; then
+            echo $a
+        fi
+    done 
+    
+}
 
 # Not used
 handle_dual(){
@@ -105,6 +118,9 @@ backup_all(){
     if [ ! -d "$source" ]; then
         echo "  Source directory $source does not exist"
         return 1
+		else
+			count=$(cd "$source"; find . -type f | wc -l)
+			echo "    Found: $count files to backup"
     fi
 
     if [ ! -d "$backup" ]; then
@@ -193,7 +209,9 @@ case $1 in
 	backup)
 		backup_all
 		;;
-
+    attach-unref)
+        find_unreferenced_attachments;
+        ;;
 	mvref)
 		shift
 		if [[ -z "$1" || -z "$2" ]]; then
