@@ -59,6 +59,7 @@ update_links() {
 }
 
 find_unreferenced_attachments(){
+	echo 'Not implemented'; exit 0
 
     IFS='
 '
@@ -86,32 +87,50 @@ handle_dual(){
     		fi
 	done
 }
+set_section_values(){
+  # $1 = vault name
+  while IFS= read -r line; do
+    $debug && echo "line:$line"
+    local key
+    local value
+    key=$(echo "$line" | cut -d '=' -f 1)
+    value=$(echo "$line" | cut -d '=' -f 2-)
+    case "$key" in
+      source)
+        source=$(eval echo "$value")
+        ;;
+      backup)
+        backup=$(eval echo "$value")
+        ;;
+      *)
+        echo "  Unknown key: $key"
+        return 1
+        ;;
+    esac
+  done < <(read_section "$1") 
+}
 
+show_sections(){
+	show(){
+		set_section_values "$1"
+		echo "$1:"
+    echo "  source: \"$source\""
+    echo "  backup: \"$backup\""
+
+	}
+
+	for section in $(list_sections); do
+		show "$section" | while IFS= read -r line; do
+			echo "  $line"
+		done
+		echo ""
+	done
+}
 
 backup_all(){
 
 	backup_vault(){
-    # $1 = vault name
-    while IFS= read -r line; do
-        echo "line:$line"
-        local key
-        local value
-        key=$(echo "$line" | cut -d '=' -f 1)
-        value=$(echo "$line" | cut -d '=' -f 2-)
-        case "$key" in
-            source)
-                source=$(eval echo "$value")
-                ;;
-            backup)
-                backup=$(eval echo "$value")
-                ;;
-            *)
-                echo "  Unknown key: $key"
-                return 1
-                ;;
-        esac
-    done < <(read_section "$1") 
-
+		set_section_values "$1"
     echo "  source: \"$source\""
     echo "  backup: \"$backup\""
 
@@ -206,12 +225,15 @@ fi
 
 
 case $1 in
+	show)
+		show_sections
+		;;
 	backup)
 		backup_all
 		;;
-    attach-unref)
-        find_unreferenced_attachments;
-        ;;
+  attach-unref)
+    find_unreferenced_attachments;
+    ;;
 	mvref)
 		shift
 		if [[ -z "$1" || -z "$2" ]]; then
