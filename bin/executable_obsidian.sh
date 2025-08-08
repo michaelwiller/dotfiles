@@ -12,7 +12,8 @@ usage(){
     echo ""
     echo "Commands:"
     echo "  backup               Backup all configured Obsidian vaults."
-    echo "  mvref <old> <new>    Update all references of 'old' to 'new' in markdown files."
+    echo "  mvref   <old> <new>  Update all references of 'old' to 'new' in markdown files. Handles adding [[]] to links."
+    echo "  replace <old> <new>  Update all occurences of 'old' to 'new' in markdown files."
     echo "                       Optionally, specify a directory to limit the scope."
     echo "  attach-unref         Lists unreferenced attachments"
     echo "  help                 Show this help message."
@@ -20,6 +21,7 @@ usage(){
     echo "Examples:"
     echo "  obsidian.sh backup"
     echo "  obsidian.sh mvref 'Old Link' 'New Link' /path/to/vault"
+    echo "  obsidian.sh replace 'Old Text' 'New Text' /path/to/vault"
 }
 
 # List available sections in the config file
@@ -42,6 +44,28 @@ read_section() {
   ' "$CONFIG_FILE"
 }
 
+update_text() {
+  local old_text="$1"
+  local new_text="$2"
+  local dir="${3:-.}"  # Default to current directory
+
+
+  find "$dir" -type f -name "*.md" -print0 | while IFS= read -r -d '' file; do
+    if grep -q "$old_text" "$file"; then
+	    echo Updating: $file
+			if ! $dry_run; then
+	      sed -i '' "s|$old_text|$new_text|g" "$file"
+      	echo "Updated: $file"
+			fi
+    fi
+  done
+
+	if $dry_run; then
+ 		echo "Found all occurrences of \"${old_text}\". Update to \"${new_text}\" not performed due to dry run."
+	else
+  	echo "Updated all occurrences of \"${old_text}\" to \"${new_text}\" in .md files under $dir"
+	fi
+}
 update_links() {
   local old_link="$1"
   local new_link="$2"
@@ -50,12 +74,18 @@ update_links() {
   find "$dir" -type f -name "*.md" -print0 | while IFS= read -r -d '' file; do
     if grep -q "\[\[$old_link\]\]" "$file"; then
 	    echo Updating: $file
-      sed -i '' "s|\[\[$old_link\]\]|\[\[$new_link\]\]|g" "$file"
-      echo "Updated: $file"
+			if ! $dry_run; then
+      	sed -i '' "s|\[\[$old_link\]\]|\[\[$new_link\]\]|g" "$file"
+      	echo "Updated: $file"
+			fi
     fi
   done
 
-  echo "Updated all occurrences of [[${old_link}]] to [[${new_link}]] in .md files under $dir"
+	if $dry_run; then
+ 		echo "Found all occurrences of [[${old_link}]]. Update to [[${new_link}]] not performed due to dry run."
+	else
+  	echo "Updated all occurrences of [[${old_link}]] to [[${new_link}]] in .md files under $dir"
+	fi
 }
 
 find_unreferenced_attachments(){
@@ -217,6 +247,10 @@ if $debug; then
     set -x
 fi
 
+if $dry_run; then
+	echo Dry run enabled no updates will be performed
+fi
+
 if [ ! -f "$CONFIG_FILE" ]; then
   create_config_template
   echo "Template created. Please edit $CONFIG_FILE to add your clusters."
@@ -234,6 +268,14 @@ case $1 in
   attach-unref)
     find_unreferenced_attachments;
     ;;
+	replace)
+		shift
+		if [[ -z "$1" || -z "$2" ]]; then
+			echo "Usage:$0 replace 'SOME OLD TEXT' 'SOME OTHER TEXT' [directory]"
+			exit -1
+		fi
+		update_text "$1" "$2" "."
+		;;
 	mvref)
 		shift
 		if [[ -z "$1" || -z "$2" ]]; then

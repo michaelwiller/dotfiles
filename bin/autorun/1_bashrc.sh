@@ -56,7 +56,7 @@ case $sessionStage in
         ;;
 esac
 
-export PS1="\e[0m\e[${ps1Color}m\u@\h \w\[\e[0m\] \$(__parse_git_branch) \n\$ "
+export PS1="\e[0m\e[${ps1Color}m\u@\h \w\[\e[0m\] $(__k8s_context) \$(__parse_git_branch) \n\$ "
 
 # # Add taskwarrior count to prompt
 # if which task >>/dev/null; then

@@ -99,7 +99,7 @@ while [[ $# -gt 0 ]]; do
             debug=true
             shift
             ;;
-        -h|--help)
+        -h|-?|--help)
             echo "Usage: $0 [options]"
             echo ""
             echo "Options:"
@@ -114,6 +114,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "Unknown option: $1"
+            echo " try: shutdown.sh -h"
             exit 1
             ;;
     esac

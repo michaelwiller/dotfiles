@@ -48,8 +48,40 @@ destroy-all-vagrant(){
 	done
 }
 
-actions="$*"
-[ -z $1 ] && actions="tpa vagrant"
+# Parse command-line options
+while [[ "$1" =~ ^- ]]; do
+    case "$1" in
+        -r|--dry-run)
+            dry_run=true
+            shift
+            ;;
+        -d|--debug)
+            debug=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+
+if [ -z $1 ]; then
+	actions="tpa vagrant"
+else
+	actions="$*"
+	shift
+fi
+
+$debug && echo "Dry run: $dry_run, actions: $actions"
+
+$dry_run && echo "Stopping run" && exit 1
 
 echo $actions | for action in $(cat --); do
 

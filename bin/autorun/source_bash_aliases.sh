@@ -6,6 +6,9 @@
 #
 #############################################################
 
+alias kga='kubectl get all -o wide --show-labels=true'
+
+alias cursor_reset='tput cnorm'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
