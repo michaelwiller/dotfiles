@@ -10,6 +10,14 @@ pyact(){
 	fi
 }
 
+__k8s_context__(){
+   if which kubectl >>/dev/null; then
+     echo "k8s:$(kubectl config current-context)"
+   else
+     echo "k8s:no"
+   fi
+}
+
 __parse_git_branch() {
      git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ git:\1/'
 }
