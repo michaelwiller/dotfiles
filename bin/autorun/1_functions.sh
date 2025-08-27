@@ -14,7 +14,7 @@ __k8s_context__(){
    if which kubectl >>/dev/null; then
      echo "k8s:$(kubectl config current-context)"
    else
-     echo "k8s:no"
+     echo ""
    fi
 }
 
