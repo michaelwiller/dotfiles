@@ -12,9 +12,9 @@ pyact(){
 
 __k8s_context__(){
    if which kubectl >>/dev/null; then
-     echo "k8s:$(kubectl config current-context)"
+     echo "k8s:$(kubectl config current-context 2>/dev/stderr)"
    else
-     echo ""
+     echo "not-set"
    fi
 }
 
