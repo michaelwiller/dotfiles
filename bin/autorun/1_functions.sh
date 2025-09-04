@@ -11,11 +11,18 @@ pyact(){
 }
 
 __k8s_context__(){
-   if which kubectl >>/dev/null; then
-     echo "k8s:$(kubectl config current-context 2>/dev/stderr)"
-   else
-     echo "not-set"
-   fi
+	local ctx
+	which kubectl >/dev/null 2>&1
+	if [ $? -gt 0 ]; then
+		echo ""
+		return
+	fi
+	ctx="$(kubectl config current-context 2>/dev/stderr)"
+	if [ -z $ctx ]; then
+		echo ""
+  else
+    echo "k8s:$ctx"
+  fi
 }
 
 __parse_git_branch() {
