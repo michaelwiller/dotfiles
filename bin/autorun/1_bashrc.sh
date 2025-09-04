@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export CONFIG_DIR=~/.config
+
 source ~/bin/autorun/1_functions.sh
 
 source_dir(){
@@ -34,7 +36,7 @@ __pathadd ~/.local/bin
 #__showpath
 
 
-source_dir $HOME/.config/bash-local-env
+source_dir $CONFIG_DIR/bash-local-env
 source_dir $HOME/bin/autorun "source_"
 
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
