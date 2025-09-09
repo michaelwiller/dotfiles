@@ -3,7 +3,7 @@
 #
 import os
 import re
-import yaml
+#import yaml
 
 print("Program not ready. Exiting")
 exit(0)
