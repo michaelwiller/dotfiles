@@ -11,6 +11,7 @@ pyact(){
 }
 
 __k8s_context__(){
+	echo ''; return
 	local ctx
 	which kubectl >/dev/null 2>&1
 	if [ $? -gt 0 ]; then
