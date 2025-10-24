@@ -21,7 +21,7 @@ usage(){
 	echo "  ssh-reset"
 	echo "          Remove all 127.0.0.1 and localhost entries from .known_hosts"
 	echo "  refresh-local-env [NAME]"
-	echo "          ssh to utm@localhost:PORT, using the PORT saved on the NAME"
+	echo "          configure .bash-local-env and ssh on guest"
 }
 
 getPort(){
