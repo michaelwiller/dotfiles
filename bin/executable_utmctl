@@ -100,6 +100,7 @@ case $action in
 		echo "export TMUX_ENABLED=false" >> $f
 		chmod 600 $f
 		scp -P $p $f utm@127.0.0.1:$(basename $f)
+		scp -P $p ~/.ssh utm@127.0.0.1:
 		;;
 
 	remove|rm) 
