@@ -19,7 +19,26 @@ source_dir(){
   done
 }
 
+# Detect OS
+export cygwin=false;
+export darwin=false;
+export linux=false;
+export msys=false
 
+case  $(uname | cut -c1-6) in
+	Linux)
+		export linux=true;
+		;;
+	Darwin) 
+		export darwin=true;
+		;;
+	MINGW*) 
+		export msys=true;
+		;;
+	CYGWIN)	
+		export cygwin=true;
+		;;
+esac
 
 #__showpath
 __pathadd /opt/homebrew/bin
@@ -36,8 +55,11 @@ __pathadd ~/.local/bin
 #__showpath
 
 
+# Assume TMUX is not enabled
+TMUX_ENABLED=false
+
 source_dir $CONFIG_DIR/bash-local-env
-source_dir $HOME/bin/autorun "source_"
+source_dir $HOME/bin/autorun/default-configs 
 
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
 
@@ -66,6 +88,7 @@ export PS1="\e[0m\e[${ps1Color}m\u@\h \w\[\e[0m\] \$(__k8s_context__) \$(__parse
 #   . $DIR/taskwarrior-configs
 # fi
 
+# TMUX auto attach/start
 if $TMUX_ENABLED; then
     _tmux=$(which tmux)
     printf "TMUX: "
@@ -92,5 +115,11 @@ if $TMUX_ENABLED; then
     fi
 else
     echo "TMUX disabled"
+		if ! [ -f ~/.config/bash-local-env/source_tmux ]; then
+		  mkdir -p ~/.config/bash-local-env
+			echo "TMUX_ENABLED=false" > ~/.config/bash-local-env/source_tmux
+			echo "Set in ~/.config/bash-local-env directory"
+		fi
 fi
+
 echo;echo

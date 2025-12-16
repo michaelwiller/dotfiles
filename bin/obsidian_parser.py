@@ -16,7 +16,7 @@ def parse_obsidian_file(filepath):
     content = []
     in_frontmatter = False
     frontmatter_lines = []
-
+    
     # Parse YAML frontmatter
     for i, line in enumerate(lines):
         if line.strip() == '---':
