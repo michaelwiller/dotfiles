@@ -4,20 +4,7 @@ export CONFIG_DIR=~/.config
 
 source ~/bin/autorun/1_functions.sh
 
-source_dir(){
-  local env_count
-  local source_dir="$1"
-  local search_pattern="${2}*"
-  
-  if [ -d $source_dir ]; then
-    env_count=$(find $source_dir -type f -name "$search_pattern" | wc -l)
-  else
-    env_count=0
-  fi
-  [ $env_count -gt 0 ] && for a in $(find $source_dir -type f -name "$search_pattern" -maxdepth 1); do
-    source $a
-  done
-}
+
 
 # Detect OS
 export cygwin=false;
@@ -54,12 +41,8 @@ __pathadd ~/.local/bin
 
 #__showpath
 
-
-# Assume TMUX is not enabled
-TMUX_ENABLED=false
-
-source_dir $CONFIG_DIR/bash-local-env
-source_dir $HOME/bin/autorun/default-configs 
+__source_dir $HOME/bin/autorun/default-configs 
+__source_dir $CONFIG_DIR/bash-local-env
 
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
 
@@ -88,38 +71,6 @@ export PS1="\e[0m\e[${ps1Color}m\u@\h \w\[\e[0m\] \$(__k8s_context__) \$(__parse
 #   . $DIR/taskwarrior-configs
 # fi
 
-# TMUX auto attach/start
-if $TMUX_ENABLED; then
-    _tmux=$(which tmux)
-    printf "TMUX: "
-    if [ -z $_tmux ]; then
-        printf "not installed.\n"
-    else
-        printf "looking for session.. "
-        if $_tmux has-session; then
-            if [ -z $TMUX ]; then
-                printf "attaching.."
-                $_tmux attach
-            else
-                printf "already active."
-            fi
-        else
-            echo notmux: $NOTMUX
-            if [ -z $NO_TMUX ]; then
-                printf  "not found. Starting ..."
-                tmux
-            else
-                printf "NOTMUX set ... not starting"
-            fi
-        fi
-    fi
-else
-    echo "TMUX disabled"
-		if ! [ -f ~/.config/bash-local-env/source_tmux ]; then
-		  mkdir -p ~/.config/bash-local-env
-			echo "TMUX_ENABLED=false" > ~/.config/bash-local-env/source_tmux
-			echo "Set in ~/.config/bash-local-env directory"
-		fi
-fi
+$TMUX_ENABLED && ~/bin/autorun/2_tmux_attach_or_start.sh
 
 echo;echo
