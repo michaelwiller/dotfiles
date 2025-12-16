@@ -1,0 +1,220 @@
+#!/usr/bin/env python3
+"""kindlehl.py
+
+Usage:
+  kindlehl.py list
+  kindlehl.py extract "Book Title" [--output out.html]
+
+Lists book titles or extracts highlights/notes for a book into HTML.
+"""
+import argparse
+import re
+import html
+from collections import OrderedDict
+from datetime import datetime
+
+INPUT_PATH = '/Users/michaelwiller/Downloads/My Clippings.txt'
+
+SEPARATOR = '=========='
+
+
+def parse_block(block):
+    lines = [l for l in block.strip().splitlines()]
+    if not lines:
+        return None
+    title = lines[0].strip()
+    meta = lines[1].strip() if len(lines) > 1 else ''
+    content = ''
+    if len(lines) >= 3:
+        idx = 2
+        if idx < len(lines) and lines[idx].strip() == '':
+            idx += 1
+        content = '\n'.join(lines[idx:]).strip()
+
+    kind = 'Highlight' if 'Highlight' in meta else ('Note' if 'Note' in meta else 'Other')
+    page_m = re.search(r'page\s+(\d+)', meta)
+    page = page_m.group(1) if page_m else ''
+    loc_s = re.search(r'Location\s+(\d+)', meta)
+    location_start = loc_s.group(1) if loc_s else ''
+    loc_m = re.search(r'Location\s+(\d+)-(\d+)', meta)
+    location_start = loc_m.group(1) if loc_m else location_start
+    location_end = loc_m.group(2) if loc_m else ''
+    added_m = re.search(r'Added on\s*(.+)', meta)
+    added = added_m.group(1).strip() if added_m else ''
+
+    return {
+        'title': title,
+        'kind': kind,
+        'page': page,
+        'location-start': location_start,
+        'location-end': location_end,
+        'added': added,
+        'content': content
+    }
+
+
+def load_clippings(path=INPUT_PATH):
+    with open(path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+        raw = f.read()
+    parts = raw.split(SEPARATOR)
+    entries = []
+    for p in parts:
+        e = parse_block(p)
+        if e:
+            entries.append(e)
+    return entries
+
+
+def dedupe_and_group(entries):
+    def parse_added(s):
+        if not s:
+            return None
+        s = s.strip()
+        # common format: 'Thursday, 19 June 2025 22:42:11'
+        fmts = [
+            '%A, %d %B %Y %H:%M:%S',
+            '%d %B %Y %H:%M:%S',
+            '%Y-%m-%d %H:%M:%S',
+        ]
+        for f in fmts:
+            try:
+                return datetime.strptime(s, f)
+            except Exception:
+                continue
+        return None
+
+    grouped_tmp = OrderedDict()  # title -> {(page,location): entry}
+    for e in entries:
+        title = e['title']
+        key = (e['page'], e['location-start'])
+        by_title = grouped_tmp.setdefault(title, {})
+        existing = by_title.get(key)
+        if not existing:
+            by_title[key] = e
+            continue
+        # compare added timestamps; prefer the later one
+        dt_new = parse_added(e.get('added'))
+        dt_old = parse_added(existing.get('added'))
+        if dt_new and dt_old:
+            if dt_new >= dt_old:
+                by_title[key] = e
+        elif dt_new and not dt_old:
+            by_title[key] = e
+        elif not dt_new and not dt_old:
+            # fallback: prefer later occurrence (current one)
+            by_title[key] = e
+
+    # convert to grouped list format
+    grouped = OrderedDict()
+    for title, mapping in grouped_tmp.items():
+        grouped[title] = list(mapping.values())
+    return grouped
+
+
+def cmd_list(args):
+    path = args.infile if getattr(args, 'infile', None) else INPUT_PATH
+    entries = load_clippings(path)
+    grouped = dedupe_and_group(entries)
+    for title in grouped.keys():
+        print(title)
+
+
+def make_html_for_book(title, items):
+    parts = []
+    parts.append('<!doctype html>')
+    parts.append('<html lang="en">')
+    parts.append('<head><meta charset="utf-8"><title>Kindle Highlights - %s</title></head>' % html.escape(title))
+    parts.append('<body>')
+    parts.append('<h2>%s</h2>' % html.escape(title))
+    for it in items:
+        hdr = []
+        if it['location-end']:
+            hdr.append('Location ' + html.escape(it['location-start']) + "-" + html.escape(it['location-end']))
+        else:
+            hdr.append('Location ' + html.escape(it['location-start']))
+        if it['page']:
+            hdr.append('Page ' + html.escape(it['page']))
+        if hdr:
+            parts.append('<h3>%s</h3>' % ' | '.join(hdr))
+        if it['kind'] == 'Note' and it['content']:
+            parts.append('<div class="note"><strong>Note:</strong> %s</div>' % html.escape(it['content']))
+        elif it['content']:
+            parts.append('<blockquote>%s</blockquote>' % html.escape(it['content']).replace('\n','<br>'))
+        if it['added']:
+            parts.append('<div><small>Added on %s</small></div>' % html.escape(it['added']))
+        parts.append('<hr>')
+    parts.append('</body></html>')
+    return '\n'.join(parts)
+
+
+def cmd_extract(args):
+    target = args.title.strip()
+    path = args.infile if getattr(args, 'infile', None) else INPUT_PATH
+    entries = load_clippings(path)
+    grouped = dedupe_and_group(entries)
+    titles = list(grouped.keys())
+    matches = [t for t in titles if t.lower() == target.lower()]
+    if not matches:
+        matches = [t for t in titles if target.lower() in t.lower()]
+
+    if not matches:
+        print('No book found matching: %s' % target)
+        return
+    if len(matches) > 1:
+        print('Multiple books matched:')
+        for m in matches:
+            print(' -', m)
+        print('Please provide a more specific title.')
+        return
+
+    book_title = matches[0]
+    items = grouped[book_title]
+    html_out = make_html_for_book(book_title, items)
+    if args.output:
+        with open(args.output, 'w', encoding='utf-8') as f:
+            f.write(html_out)
+        print('Wrote', args.output)
+    else:
+        print(html_out)
+
+
+def main():
+    description = 'CLI to list and extract Kindle highlights from My Clippings.txt.'
+    epilog = '''Examples:
+
+    # list available book titles (deduplicated)
+    python3 /Users/michaelwiller/Downloads/kindlehl.py list
+
+    # extract highlights for a book to HTML
+    python3 /Users/michaelwiller/Downloads/kindlehl.py extract "Shogun (The Asian Saga) (Clavell, James)" --output /Users/michaelwiller/Downloads/shogun.html
+
+Notes:
+
+- Deduplication key: (book title, page, location start). When duplicates exist, the script keeps the latest entry based on the parsed "Added on" timestamp. If timestamps are missing, the later occurrence in the file is preferred.
+- Output is HTML; highlights appear in <blockquote> blocks and notes follow the highlight. Location/page metadata is shown as a header above each highlight.
+'''
+
+    parser = argparse.ArgumentParser(prog='kindlehl', description=description, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = parser.add_subparsers(dest='cmd')
+
+    p_list = sub.add_parser('list', help='List all book titles')
+    p_list.add_argument('--in', '-i', dest='infile', help='Path to My Clippings.txt (default: %s)' % INPUT_PATH)
+    p_list.set_defaults(func=cmd_list)
+
+    p_extract = sub.add_parser('extract', help='Extract highlights for a given book')
+    p_extract.add_argument('title', help='Book title (quoted)')
+    p_extract.add_argument('--in', '-i', dest='infile', help='Path to My Clippings.txt (default: %s)' % INPUT_PATH)
+    p_extract.add_argument('--out', '-o', dest='output', help='Write HTML to file')
+    # also accept legacy --output
+    p_extract.add_argument('--output', action='store', dest='output', help=argparse.SUPPRESS)
+    p_extract.set_defaults(func=cmd_extract)
+
+    args = parser.parse_args()
+    if not args.cmd:
+        parser.print_help()
+        return
+    args.func(args)
+
+
+if __name__ == '__main__':
+    main()
