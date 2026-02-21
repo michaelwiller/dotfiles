@@ -1,0 +1,11 @@
+
+{{- $is_work := false -}}
+{{- /* If we've already set this variable, keep it */ -}}
+{{- if (hasKey . "is_work") -}}
+{{-   $is_work = .is_work -}}
+{{- else -}}
+{{-   $is_work = promptBool "Is this a work machine" -}}
+{{- end -}}
+
+[data]
+    is_work = {{ $is_work }}
