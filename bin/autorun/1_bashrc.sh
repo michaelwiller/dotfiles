@@ -65,6 +65,9 @@ esac
 
 export PS1="\e[0m\e[${ps1Color}m\u@\h \w\[\e[0m\] \$(__k8s_context__) \$(__parse_git_branch) \n\$ "
 
+# enable direnv
+eval "$(direnv hook bash)"
+
 # # Add taskwarrior count to prompt
 # if which task >>/dev/null; then
 #   export PS1="inbox:\$(task +in +PENDING count) $PS1"
