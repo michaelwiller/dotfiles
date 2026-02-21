@@ -6,8 +6,8 @@
 {{- else -}}
 {{-   $is_work = promptBool "Is this a work machine" -}}
 {{- end -}}
-{{- $is_testing = true }}
+{{- $is_testing := true -}}
 
 [data]
     is_work = {{ $is_work }}
-		testing = {{ is_testing }}
+		testing = {{ $is_testing }}
