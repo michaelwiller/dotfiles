@@ -21,3 +21,5 @@ Configuration is placed in
     apply      Apply changes from chezmoi repository to Home
     update     Pull changes
     add        Add a new file to the chezmoi repository
+    managed    List files managed by Chezmoi
+    unmanaged  List files NOT managed by Chezmoi
