@@ -1,4 +1,3 @@
-
 {{- $is_work := false -}}
 {{- /* If we've already set this variable, keep it */ -}}
 {{- if (hasKey . "is_work") -}}
@@ -10,3 +9,7 @@
 
 [data]
     is_work = {{ $is_work }}
+    edb_subscription_token = {{ (bitwarden "item" "EDB-Subscription-Token").login.password }}
+[git]
+	autoCommit = true
+	autoPush = true
