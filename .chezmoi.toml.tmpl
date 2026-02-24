@@ -9,7 +9,7 @@
 
 [data]
     is_work = {{ $is_work }}
-    edb_subscription_token = {{ (bitwarden "item" "EDB-Subscription-Token").login.password }}
+    edb_subscription_token = {{ (bitwarden "item" "EDB-Subscription-Token").login.password | quote }}
 
 [git]
 	autoCommit = true
