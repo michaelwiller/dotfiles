@@ -12,7 +12,7 @@
     {{- if $is_work }}
     edb_subscription_token = {{ (bitwarden "item" "EDB-Subscription-Token").login.password | quote }}
 	{{- else }}
-    edb_subscription_token = {{ (bitwarden "item" "EDB-Subscription-Token").login.password | quote }}
+    edb_subscription_token = "not-set-on-home"
 	{{- end }}
 
 [git]
