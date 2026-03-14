@@ -8,6 +8,8 @@
 
 alias kga='kubectl get all -o wide --show-labels=true'
 
+alias sshf='ssh -F ssh_config'
+
 alias cursor_reset='tput cnorm'
 alias ..='cd ..'
 alias ...='cd ../..'
