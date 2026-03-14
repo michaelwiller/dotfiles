@@ -1,0 +1,6 @@
+#!/bin/bash
+# run_once_after_install-packages.sh.tmpl
+
+{{ if eq .chezmoi.os "darwin" -}}
+brew bundle --file="{{ .chezmoi.sourceDir }}/Brewfile"
+{{- end }}
