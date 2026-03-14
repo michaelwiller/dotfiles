@@ -1,4 +1,6 @@
 tap "homebrew/services"
+
+# ---- SHARED resources ----
 brew "bash"
 brew "bash-completion"
 brew "chezmoi"
@@ -21,33 +23,24 @@ brew "postgresql@18", restart_service: :changed, link: true
 brew "python@3.13"
 brew "qemu"
 brew "reattach-to-user-namespace"
-brew "redis", restart_service: :changed
-brew "stockfish"
 brew "tmux"
 brew "watch"
 brew "wget"
 cask "adobe-digital-editions"
 cask "bitwarden"
-cask "calibre"
 cask "dbeaver-community"
-cask "discord"
 cask "docker-desktop"
 cask "expressvpn"
-cask "gimp"
-cask "google-chrome"
-cask "google-drive"
 cask "iterm2"
 cask "logi-options+"
 cask "microsoft-openjdk@21"
 cask "notion"
 cask "obsidian"
-cask "overlayed"
-cask "reaper"
-cask "redis-insight"
-cask "steam"
 cask "vagrant"
 cask "visual-studio-code"
 cask "zoom"
+
+# VS CODE Extensions now managed by Brew
 vscode "arcanis.vscode-zipfs"
 vscode "docker.docker"
 vscode "dsznajder.es7-react-js-snippets"
@@ -77,3 +70,41 @@ vscode "vscjava.vscode-maven"
 vscode "vscjava.vscode-spring-initializr"
 vscode "vue.volar"
 vscode "wmanth.jar-viewer"
+
+{{- if not .is_work }}
+
+# ---- HOME resources ----
+
+# REDIS
+brew "redis", restart_service: :changed
+cask "redis-insight"
+
+# CHESS
+brew "stockfish"
+
+# BOOKS
+cask "calibre"
+
+## GAMING
+cask "discord"
+cask "overlayed"
+cask "steam"
+
+# DRAWING
+cask "gimp"
+
+# MUSIC
+cask "reaper"
+
+{{- end }}
+
+{{- if .is_work }}
+
+# ---- WORK resources ----
+
+# GOOGLE crap
+cask "google-chrome"
+cask "google-drive"
+
+{{- end }}
+

@@ -1,6 +1,5 @@
 #!/bin/bash
-# run_once_after_install-packages.sh.tmpl
 
-{{ if eq .chezmoi.os "darwin" -}}
-brew bundle --file="{{ .chezmoi.sourceDir }}/Brewfile"
-{{- end }}
+echo "Syncing Homebrew bundles..."
+# This command looks for the ~/.Brewfile that chezmoi just generated from the template
+brew bundle --file="{{ .chezmoi.homeDir }}/.Brewfile"
