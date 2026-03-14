@@ -10,7 +10,7 @@
 [data]
     is_work = {{ $is_work }}
     {{- if $is_work }}
-    edb_subscription_token = {{ (bitwarden "item" "EDB-Subscription-Token").login.password | quote }}
+    edb_subscription_token = {{ (bitwarden "item" "ea59ae1d-9f53-4453-b07d-b3fb008f4fff").login.password | quote }}
 	{{- else }}
     edb_subscription_token = "not-set-on-home"
 	{{- end }}
