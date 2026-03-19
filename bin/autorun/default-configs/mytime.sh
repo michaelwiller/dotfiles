@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 _mt_completions() {
     local cur prev opts aliases
     COMPREPLY=()
@@ -24,4 +26,4 @@ _mt_completions() {
 
 complete -F _mt_completions mt
 
-alias mt='$HOME/bin/venv-homebin/bin/python3 $HOME/bin/mytime.py'
+alias mt='$HOME/.venv/homebin/bin/python3 $HOME/bin/mytime.py'
