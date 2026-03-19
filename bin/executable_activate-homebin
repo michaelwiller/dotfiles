@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# activate-homebin
+# Activate the shared homebin Python tools virtualenv.
+#
+# Usage:
+#   source activate-homebin
+#   # or
+#   . activate-homebin
+
+VENV="${HOMEBIN_VENV:-$HOME/.venv/homebin}"
+
+if [[ ! -f "$VENV/bin/activate" ]]; then
+  echo "ERROR: homebin venv not found: $VENV" >&2
+  echo "Run: ~/bin/python-deps-sync.sh" >&2
+  return 1 2>/dev/null || exit 1
+fi
+
+# shellcheck source=/dev/null
+source "$VENV/bin/activate"
+
+echo "Activated homebin venv: $VENV"

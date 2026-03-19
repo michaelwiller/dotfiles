@@ -1,5 +1,5 @@
 .CFUserTextEncoding
-.DS_Store
+**/.DS_Store
 .Trash
 .Xauthority
 .ansible
