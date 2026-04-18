@@ -40,6 +40,11 @@ cask "notion"
 cask "obsidian"
 cask "vagrant"
 cask "visual-studio-code"
+<<<<<<< HEAD
+=======
+cask "zoom"
+brew "crc"
+>>>>>>> ee913d7 (Update .Brewfile)
 
 # VS CODE Extensions now managed by Brew
 vscode "arcanis.vscode-zipfs"
@@ -77,8 +82,12 @@ vscode "wmanth.jar-viewer"
 # ---- HOME resources ----
 
 # REDIS
+<<<<<<< HEAD
 brew "redis", restart_service: :changed
 cask "zoom"
+=======
+brew "redis", restart_service: :changed, link: true
+>>>>>>> ee913d7 (Update .Brewfile)
 cask "redis-insight"
 
 # CHESS
