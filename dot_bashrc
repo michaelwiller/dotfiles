@@ -4,6 +4,14 @@ if [ -f ~/bin/autorun/1_bashrc.sh ]; then
     source ~/bin/autorun/1_bashrc.sh
 fi
 
-brew bundle check || brew bundle install
+echo "Run brew update? "; read -t 5 a
+case $a in
+	y|Y)
+		brew-update.sh
+		;;
+	*)
+		echo "brew-update.sh not run."
+		;;
+esac
 
 export PATH=~/cnpg:$PATH
