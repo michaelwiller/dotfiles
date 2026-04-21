@@ -40,8 +40,6 @@ cask "notion"
 cask "obsidian"
 cask "vagrant"
 cask "visual-studio-code"
-cask "zoom"
-cask "brave-browser"
 
 # VS CODE Extensions now managed by Brew
 vscode "arcanis.vscode-zipfs"
@@ -77,6 +75,7 @@ vscode "wmanth.jar-viewer"
 {{- if not .is_work }}
 
 # ---- HOME resources ----
+cask "zoom"
 
 # REDIS
 #brew "redis", restart_service: :changed
