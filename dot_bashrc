@@ -4,4 +4,5 @@ if [ -f ~/bin/autorun/1_bashrc.sh ]; then
     source ~/bin/autorun/1_bashrc.sh
 fi
 
+brew-update.sh
 export PATH=~/cnpg:$PATH
