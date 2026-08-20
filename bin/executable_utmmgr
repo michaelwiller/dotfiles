@@ -12,6 +12,8 @@ usage(){
 	echo "          Remove server:port with name NAME"
 	echo "   sp NAME PORT"
 	echo "          Set port to PORT on server of NAME"
+	echo " init [NAME]"
+	echo "          Sets up chezmoi and ssh-keys on new server"
 	echo "   ls [TXT]"
 	echo "          Search for TXT or list all content if no TXT"
 	echo "  start/stop [NAME]"
@@ -21,7 +23,7 @@ usage(){
 	echo "  ssh-reset"
 	echo "          Remove all 127.0.0.1 and localhost entries from .known_hosts"
 	echo "  refresh-local-env [NAME]"
-	echo "          configure .bash-local-env and ssh on guest"
+	echo "          configure .bash-local-env with new values from host"
 }
 
 getPort(){
